@@ -1,0 +1,70 @@
+spring:
+  application:
+    name: applyflow
+  config:
+    import: file:.env[.properties]
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+  datasource:
+    url: jdbc:postgresql://${DB_URL}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    database: postgresql
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+    validate-on-migrate: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+springdoc:
+  api-docs:
+    enabled: true # keep true for dev, set false in prod
+  swagger-ui:
+    enabled: true # keep true for dev, set false in prod
+
+app:
+  cors:
+    allowed-origins: ${FRONTEND_URL:http://localhost:3000}
+  security:
+    public-paths: /api/v1/auth/**
+    jwt:
+      access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:86400000}   # 24h default (dev)
+      refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800000}  # 7 days
+      private-key-path: ${JWT_PRIVATE_KEY_PATH:./keys/local-only/private_key.pem}
+      public-key-path: ${JWT_PUBLIC_KEY_PATH:./keys/local-only/public_key.pem}
+    disposable-emails: 10minutemail,20minutemail,33mail,5ymail,anonbox,guerrillamail,mailinator,maildrop,mailnesia,moakt,my10minutemail,throwawaymail,trashmail,temp-mail,tempmail,truemail,yopmail
+
+ai:
+  provider: gemini
+  model: ${AI_MODEL:gemini-2.0-flash}
+  api-key: ${AI_API_KEY:${GEMINI_API_KEY:${ANTHROPIC_API_KEY:}}}
+
+storage:
+  provider: s3
+  endpoint: ${S3_ENDPOINT:http://localhost:9000}
+  region: ${S3_REGION:eu-west-3}
+  bucket: ${S3_BUCKET:applyflow}
+  access-key: ${S3_ACCESS_KEY:minioadmin}
+  secret-key: ${S3_SECRET_KEY:minioadmin}
+  path-style-access: true

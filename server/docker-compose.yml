@@ -1,0 +1,40 @@
+services:
+  postgres:
+    container_name: apply_flow
+    image: postgres:18.3
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /data/postgres
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "${DB_PORT}:5432"
+    restart: unless-stopped
+
+  minio:
+    container_name: apply_flow_minio
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:-minioadmin}
+    volumes:
+      - minio:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    restart: unless-stopped
+
+  mailhog:
+    container_name: apply_flow_mailhog
+    image: mailhog/mailhog:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    restart: unless-stopped
+
+volumes:
+  postgres:
+  minio:

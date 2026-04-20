@@ -1,0 +1,42 @@
+# --- Secrets (NEVER commit) ---
+**/.env
+**/.env.local
+**/.env.*.local
+!**/.env.example
+**/keys/
+!**/keys/.gitkeep
+
+# --- Server (Maven / Spring Boot) ---
+server/target/
+server/.mvn/wrapper/maven-wrapper.jar
+server/*.log
+server/logs/
+
+# --- Client (Bun / Next.js) ---
+client/node_modules/
+client/.next/
+client/out/
+client/.turbo/
+client/*.log
+client/.env*.local
+
+# --- IDE / OS ---
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+# Added by code-review-graph
+.code-review-graph/
+
+# --- Local AI/editor tooling (optional, not required for build/runtime) ---
+.claude/
+.mcp.json
+.opencode.json
+
+# --- Root repo metadata/docs (local-only) ---
+/.github/
+/AGENTS.md
+/CLAUDE.md
+/GEMINI.md
+/PROGRESS.md
