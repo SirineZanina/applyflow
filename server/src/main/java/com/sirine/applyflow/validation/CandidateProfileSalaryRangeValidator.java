@@ -14,8 +14,8 @@ public class CandidateProfileSalaryRangeValidator implements ConstraintValidator
             return true;
         }
 
-        final Integer salaryMin = request.getSalaryMin();
-        final Integer salaryMax = request.getSalaryMax();
+        final Integer salaryMin = request.salaryMin();
+        final Integer salaryMax = request.salaryMax();
         if (salaryMin == null || salaryMax == null || salaryMin <= salaryMax) {
             return true;
         }

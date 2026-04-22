@@ -1,45 +1,38 @@
 package com.sirine.applyflow.profile.request;
 
-
 import com.sirine.applyflow.profile.RemotePreference;
 import com.sirine.applyflow.validation.ValidSalaryRange;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
-import lombok.*;
 
 import java.util.List;
 
 @ValidSalaryRange
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class CandidateProfileRequest {
+public record CandidateProfileRequest(
 
-    @Size(max = 255, message = "VALIDATION.PROFILE.HEADLINE.SIZE")
-    private String headline;
+        @Size(max = 255, message = "VALIDATION.PROFILE.HEADLINE.SIZE")
+        String headline,
 
-    private String summary;
+        String summary,
 
-    @Min(value = 0, message = "VALIDATION.PROFILE.YEARS_EXPERIENCE.MIN")
-    @Max(value = 50, message = "VALIDATION.PROFILE.YEARS_EXPERIENCE.MAX")
-    private Integer yearsExperience;
+        @Min(value = 0, message = "VALIDATION.PROFILE.YEARS_EXPERIENCE.MIN")
+        @Max(value = 50, message = "VALIDATION.PROFILE.YEARS_EXPERIENCE.MAX")
+        Integer yearsExperience,
 
-    private List<String> desiredRoles;
+        List<String> desiredRoles,
 
-    private List<String> desiredLocations;
+        List<String> desiredLocations,
 
-    private RemotePreference remotePreference;
+        RemotePreference remotePreference,
 
-    @Min(value = 0, message = "VALIDATION.PROFILE.SALARY_MIN.MIN")
-    private Integer salaryMin;
+        @Min(value = 0, message = "VALIDATION.PROFILE.SALARY_MIN.MIN")
+        Integer salaryMin,
 
-    @Min(value = 0, message = "VALIDATION.PROFILE.SALARY_MAX.MIN")
-    private Integer salaryMax;
+        @Min(value = 0, message = "VALIDATION.PROFILE.SALARY_MAX.MIN")
+        Integer salaryMax,
 
-    @Size(min = 3, max = 3, message = "VALIDATION.PROFILE.CURRENCY.SIZE")
-    private String currency;
+        @Size(min = 3, max = 3, message = "VALIDATION.PROFILE.CURRENCY.SIZE")
+        String currency
 
-}
+) {}

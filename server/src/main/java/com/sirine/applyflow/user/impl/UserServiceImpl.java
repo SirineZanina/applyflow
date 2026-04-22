@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,19 +44,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void changePassword(ChangePasswordRequest request, String userId) {
-        if (!request.getNewPassword().equals(request.getConfirmNewPassword())){
+        if (!request.newPassword().equals(request.confirmNewPassword())) {
             throw new BusinessException(ErrorCode.CHANGE_PASSWORD_MISMATCH);
         }
 
         final User savedUser = this.userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, userId));
 
-        if (!this.passwordEncoder.matches(request.getCurrentPassword(),
-                savedUser.getPassword())) {
+        if (!this.passwordEncoder.matches(request.currentPassword(), savedUser.getPassword())) {
             throw new BusinessException(ErrorCode.INVALID_CURRENT_PASSWORD);
         }
 
-        final String encoded = this.passwordEncoder.encode(request.getNewPassword());
+        final String encoded = this.passwordEncoder.encode(request.newPassword());
         savedUser.setPassword(encoded);
         this.userRepository.save(savedUser);
 

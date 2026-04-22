@@ -12,10 +12,8 @@ class CandidateProfileRequestValidationTest {
 
     @Test
     void salaryRangeIsInvalidWhenMinGreaterThanMax() {
-        final CandidateProfileRequest request = CandidateProfileRequest.builder()
-                .salaryMin(5000)
-                .salaryMax(3000)
-                .build();
+        final CandidateProfileRequest request =
+                new CandidateProfileRequest(null, null, null, null, null, null, 5000, 3000, null);
 
         final var violations = validator.validate(request);
 
@@ -28,10 +26,8 @@ class CandidateProfileRequestValidationTest {
 
     @Test
     void salaryRangeIsValidWhenMinLessOrEqualToMax() {
-        final CandidateProfileRequest request = CandidateProfileRequest.builder()
-                .salaryMin(3000)
-                .salaryMax(5000)
-                .build();
+        final CandidateProfileRequest request =
+                new CandidateProfileRequest(null, null, null, null, null, null, 3000, 5000, null);
 
         final var violations = validator.validate(request);
 

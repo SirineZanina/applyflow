@@ -48,7 +48,7 @@ public class ResumeServiceImpl implements ResumeService {
     @Override
     @Transactional
     public ResumeDocumentResponse upload(final ResumeUploadRequest request, final String userId) {
-        final MultipartFile file = request.getFile();
+        final MultipartFile file = request.file();
         final String mime = validateFileAndDetectMime(file);
 
         final var user = userRepository.findById(userId)
@@ -56,7 +56,7 @@ public class ResumeServiceImpl implements ResumeService {
 
         final String extension = ACCEPTED_MIMES.get(mime);
         final String storageKey = "users/%s/resumes/%s.%s".formatted(userId, UUID.randomUUID(), extension);
-        final String safeLabel = sanitizeLabel(request.getLabel());
+        final String safeLabel = sanitizeLabel(request.label());
 
         try {
             storageService.upload(storageKey, file.getInputStream(), file.getSize(), mime);
