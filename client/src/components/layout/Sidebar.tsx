@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { LayoutDashboard, FileText, LogOut } from "lucide-react";
+import { LayoutDashboard, FileText, LogOut, User } from "lucide-react";
 import { useSignOut } from "@/features/auth/hooks";
 import { Button } from "@/components/ui/button";
 
@@ -13,6 +13,11 @@ const NAV_ITEMS = [
         icon: FileText,
         label: "Applications",
         to: "/applications"
+    },
+    {
+        icon: User,
+        label: "Profile",
+        to: "/profile"
     }
 ] as const;
 
