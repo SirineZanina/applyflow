@@ -4,7 +4,6 @@ import com.sirine.applyflow.common.SecurityUtils;
 import com.sirine.applyflow.user.request.ChangePasswordRequest;
 import com.sirine.applyflow.user.request.ProfileUpdateRequest;
 import com.sirine.applyflow.user.response.UserResponse;
-import com.sirine.applyflow.user.UserMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
