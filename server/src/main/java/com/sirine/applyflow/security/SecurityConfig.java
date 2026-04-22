@@ -75,8 +75,7 @@ public class SecurityConfig {
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         // Authorization header carries the JWT; Content-Type is needed for JSON + multipart bodies.
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
-        // No credentials (cookies/sessions) — we use Bearer tokens in the Authorization header.
-        config.setAllowCredentials(false);
+        config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

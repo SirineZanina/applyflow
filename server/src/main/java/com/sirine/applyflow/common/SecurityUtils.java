@@ -9,6 +9,16 @@ public final class SecurityUtils {
 
     private SecurityUtils(){}
 
+    public static User extractUser(final Authentication principal) {
+        if (principal == null || principal.getPrincipal() == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+        if (!(principal.getPrincipal() instanceof User user)) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+        return user;
+    }
+
     public static String extractUserId(final Authentication principal){
         if (principal == null || principal.getPrincipal() == null) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED);

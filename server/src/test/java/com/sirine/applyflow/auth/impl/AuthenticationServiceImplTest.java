@@ -1,8 +1,7 @@
 package com.sirine.applyflow.auth.impl;
 
+import com.sirine.applyflow.auth.AuthTokenPair;
 import com.sirine.applyflow.auth.request.AuthenticationRequest;
-import com.sirine.applyflow.auth.request.RefreshRequest;
-import com.sirine.applyflow.auth.response.AuthenticationResponse;
 import com.sirine.applyflow.auth.token.RefreshToken;
 import com.sirine.applyflow.auth.token.RefreshTokenRepository;
 import com.sirine.applyflow.security.JwtService;
@@ -77,14 +76,10 @@ class AuthenticationServiceImplTest {
                 ));
         when(refreshTokenRepository.save(any(RefreshToken.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        final AuthenticationResponse response = service.login(AuthenticationRequest.builder()
-                .email("john.doe@example.com")
-                .password("P@ssw0rd!")
-                .build());
+        final AuthTokenPair pair = service.login(new AuthenticationRequest("john.doe@example.com", "P@ssw0rd!"));
 
-        assertThat(response.getAccessToken()).isEqualTo("access-token");
-        assertThat(response.getRefreshToken()).isEqualTo("refresh-token");
-        assertThat(response.getTokenType()).isEqualTo("Bearer");
+        assertThat(pair.accessToken()).isEqualTo("access-token");
+        assertThat(pair.refreshToken()).isEqualTo("refresh-token");
 
         verify(refreshTokenRepository).save(ArgumentMatchers.argThat(token ->
                 token.getTokenId().equals("token-id-1") && !token.isRevoked()));
@@ -123,13 +118,10 @@ class AuthenticationServiceImplTest {
         when(jwtService.generateAccessToken("john.doe@example.com")).thenReturn("new-access-token");
         when(refreshTokenRepository.save(any(RefreshToken.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        final AuthenticationResponse response = service.refreshToken(RefreshRequest.builder()
-                .refreshToken("old-refresh-token")
-                .build());
+        final AuthTokenPair pair = service.refreshToken("old-refresh-token");
 
-        assertThat(response.getAccessToken()).isEqualTo("new-access-token");
-        assertThat(response.getRefreshToken()).isEqualTo("new-refresh-token");
-        assertThat(response.getTokenType()).isEqualTo("Bearer");
+        assertThat(pair.accessToken()).isEqualTo("new-access-token");
+        assertThat(pair.refreshToken()).isEqualTo("new-refresh-token");
 
         assertThat(existingToken.isRevoked()).isTrue();
         assertThat(existingToken.getReplacedByTokenId()).isEqualTo("new-token-id");
@@ -159,7 +151,7 @@ class AuthenticationServiceImplTest {
         when(refreshTokenRepository.findByTokenId("token-id-1")).thenReturn(Optional.of(existingToken));
         when(refreshTokenRepository.save(any(RefreshToken.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        service.logout(RefreshRequest.builder().refreshToken("refresh-token").build());
+        service.logout("refresh-token");
 
         assertThat(existingToken.isRevoked()).isTrue();
         verify(refreshTokenRepository).save(existingToken);

@@ -3,6 +3,8 @@ package com.sirine.applyflow.user;
 import com.sirine.applyflow.common.SecurityUtils;
 import com.sirine.applyflow.user.request.ChangePasswordRequest;
 import com.sirine.applyflow.user.request.ProfileUpdateRequest;
+import com.sirine.applyflow.user.response.UserResponse;
+import com.sirine.applyflow.user.UserMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,11 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+
+    @GetMapping("/me")
+    public UserResponse getMe(final Authentication principal) {
+        return UserMapper.toUserResponse(SecurityUtils.extractUser(principal));
+    }
 
     @PatchMapping("/me")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
