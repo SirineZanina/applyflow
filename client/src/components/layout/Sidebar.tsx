@@ -1,24 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { LayoutDashboard, FileText, LogOut, User } from "lucide-react";
+import { LayoutDashboard, FileStack, LogOut, User } from "lucide-react";
 import { useSignOut } from "@/features/auth/hooks";
 import { Button } from "@/components/ui/button";
 
 const NAV_ITEMS = [
-    {
-        icon: LayoutDashboard,
-        label: "Dashboard",
-        to: "/dashboard"
-    },
-    {
-        icon: FileText,
-        label: "Applications",
-        to: "/applications"
-    },
-    {
-        icon: User,
-        label: "Profile",
-        to: "/profile"
-    }
+    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/profile', label: 'Profile', icon: User },
+    { to: '/resumes', label: 'Resumes', icon: FileStack },
 ] as const;
 
 export function Sidebar() {
