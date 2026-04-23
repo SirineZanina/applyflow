@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.Duration;
@@ -27,15 +28,22 @@ public class S3StorageService implements StorageService {
     private final StorageProperties props;
 
     @Override
-    public String upload(final String key, final InputStream data, final long contentLength, final String contentType) {
+    public void upload(final String key, final InputStream data, final long contentLength, final String contentType) {
+        final byte[] bytes;
+        try {
+            bytes = data.readAllBytes();
+        } catch (IOException e) {
+            log.error("Failed to buffer stream for key {}", key, e);
+            throw new BusinessException(ErrorCode.STORAGE_UPLOAD_FAILED, key);
+        }
+        log.info("Uploading key={} expectedBytes={} actualBytes={} contentType={}", key, contentLength, bytes.length, contentType);
         try {
             s3Client.putObject(
                     req -> req.bucket(props.getBucket())
                             .key(key)
                             .contentType(contentType)
-                            .contentLength(contentLength),
-                    RequestBody.fromInputStream(data, contentLength));
-            return key;
+                            .contentLength((long) bytes.length),
+                    RequestBody.fromBytes(bytes));
         } catch (S3Exception e) {
             log.error("S3 upload failed for key {}", key, e);
             throw new BusinessException(ErrorCode.STORAGE_UPLOAD_FAILED, key);

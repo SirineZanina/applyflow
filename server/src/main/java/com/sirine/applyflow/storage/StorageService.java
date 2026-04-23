@@ -6,7 +6,7 @@ import java.time.Duration;
 
 public interface StorageService {
 
-    String upload(String key, InputStream data, long contentLength, String contentType);
+    void upload(String key, InputStream data, long contentLength, String contentType);
 
     InputStream download(String key);
 
