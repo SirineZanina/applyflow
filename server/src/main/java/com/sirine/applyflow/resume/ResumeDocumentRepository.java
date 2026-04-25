@@ -15,6 +15,8 @@ public interface ResumeDocumentRepository extends JpaRepository<ResumeDocument, 
 
     Optional<ResumeDocument> findByIdAndUser_Id(String id, String userId);
 
+    void deleteByUser_Id(String userId);
+
     @Modifying
     @Query("update ResumeDocument r set r.primary = false where r.user.id = :userId and r.id <> :keepId")
     void clearPrimaryExcept(String userId, String keepId);

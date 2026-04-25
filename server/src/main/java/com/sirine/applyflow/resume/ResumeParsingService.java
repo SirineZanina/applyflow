@@ -61,23 +61,30 @@ public class ResumeParsingService {
         }
 
         log.info("Starting parsing for resume {}", resumeId);
+        document.setParseStatus(ResumeParseStatus.PROCESSING);
+        document.setParseError(null);
+        resumeDocumentRepository.save(document);
 
         final String extractedText;
         try {
             extractedText = extractText(document);
         } catch (TikaException e) {
             log.error("Tika parsing failed for resume {}", resumeId, e);
+            markFailed(document, "Tika parsing failed.");
             return;
         } catch (IOException e) {
             log.error("I/O error during text extraction for resume {}", resumeId, e);
+            markFailed(document, "Failed to extract text from file.");
             return;
         } catch (BusinessException e) {
             log.error("Storage error during text extraction for resume {}: {}", resumeId, e.getMessage());
+            markFailed(document, "Storage read failed: " + e.getMessage());
             return;
         }
 
         if (extractedText == null || extractedText.isBlank()) {
             log.warn("parseAsync: no text extracted from resume {}", resumeId);
+            markFailed(document, "No text extracted from resume.");
             return;
         }
 
@@ -86,6 +93,7 @@ public class ResumeParsingService {
             extraction = aiClient.completeJson(SYSTEM_PROMPT, extractedText, ResumeExtraction.class);
         } catch (BusinessException e) {
             log.error("AI extraction failed for resume {}: {}", resumeId, e.getMessage());
+            markFailed(document, "AI extraction failed: " + e.getMessage());
             return;
         }
 
@@ -95,6 +103,8 @@ public class ResumeParsingService {
         document.getSections().clear();
         document.getSections().addAll(built);
         document.setParsedAt(LocalDateTime.now());
+        document.setParseStatus(ResumeParseStatus.SUCCESS);
+        document.setParseError(null);
         resumeDocumentRepository.save(document);
 
         log.info("Parsing complete for resume {} — {} sections saved", resumeId, document.getSections().size());
@@ -148,5 +158,11 @@ public class ResumeParsingService {
             log.error("Failed to serialize section {} for resume {}", type, document.getId(), e);
             return orderIndex;
         }
+    }
+
+    private void markFailed(final ResumeDocument document, final String reason) {
+        document.setParseStatus(ResumeParseStatus.FAILED);
+        document.setParseError(reason);
+        resumeDocumentRepository.save(document);
     }
 }

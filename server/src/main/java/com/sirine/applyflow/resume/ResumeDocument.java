@@ -38,10 +38,17 @@ public class ResumeDocument extends BaseEntity {
     @Column(name = "size_bytes")
     private Long sizeBytes;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "parse_status", nullable = false, length = 20)
+    private ResumeParseStatus parseStatus = ResumeParseStatus.PENDING;
+
+    @Column(name = "parse_error", columnDefinition = "TEXT")
+    private String parseError;
+
     @Column(name = "parsed_at")
     private LocalDateTime parsedAt;
 
-    @Column(name = "is_primary")
+    @Column(name = "is_primary", nullable = false)
     private boolean primary;
 
     @OneToMany(mappedBy = "resume", cascade =

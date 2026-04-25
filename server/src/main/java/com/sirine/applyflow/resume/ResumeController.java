@@ -1,8 +1,11 @@
 package com.sirine.applyflow.resume;
 
 import com.sirine.applyflow.common.SecurityUtils;
+import com.sirine.applyflow.resume.request.ResumeReplaceFileRequest;
+import com.sirine.applyflow.resume.request.ResumeUpdateLabelRequest;
 import com.sirine.applyflow.resume.request.ResumeUploadRequest;
 import com.sirine.applyflow.resume.response.ResumeDocumentResponse;
+import com.sirine.applyflow.resume.response.ResumeViewUrlResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -67,4 +70,33 @@ public class ResumeController {
         resumeService.delete(id, SecurityUtils.extractUserId(principal));
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}/view-url")
+    public ResponseEntity<ResumeViewUrlResponse> getViewUrl(
+            @PathVariable final String id,
+            final Authentication principal){
+        final String url = resumeService.getViewUrl(id,
+                SecurityUtils.extractUserId(principal));
+        return ResponseEntity.ok(new ResumeViewUrlResponse(url));
+    }
+
+    @PatchMapping("/{id}/label")
+    public ResponseEntity<ResumeDocumentResponse> updateLabel(
+            @PathVariable final String id,
+            @Valid @RequestBody final ResumeUpdateLabelRequest request,
+            final Authentication principal) {
+        return ResponseEntity.ok(resumeService.updateLabel(id, request,
+                SecurityUtils.extractUserId(principal)));
+    }
+
+    @PutMapping(value = "/{id}/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResumeDocumentResponse> replaceFile(
+            @PathVariable final String id,
+            @Valid @ModelAttribute final ResumeReplaceFileRequest request,
+            final Authentication principal) {
+        return ResponseEntity.ok(resumeService.replaceFile(id, request,
+                SecurityUtils.extractUserId(principal)));
+    }
+
 }

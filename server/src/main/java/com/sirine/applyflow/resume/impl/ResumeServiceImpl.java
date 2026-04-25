@@ -2,15 +2,14 @@ package com.sirine.applyflow.resume.impl;
 
 import com.sirine.applyflow.exception.BusinessException;
 import com.sirine.applyflow.exception.ErrorCode;
-import com.sirine.applyflow.resume.ResumeDocument;
-import com.sirine.applyflow.resume.ResumeDocumentRepository;
-import com.sirine.applyflow.resume.ResumeMapper;
-import com.sirine.applyflow.resume.ResumeParsingService;
-import com.sirine.applyflow.resume.ResumeService;
+import com.sirine.applyflow.resume.*;
+import com.sirine.applyflow.resume.request.ResumeReplaceFileRequest;
+import com.sirine.applyflow.resume.request.ResumeUpdateLabelRequest;
 import com.sirine.applyflow.resume.request.ResumeUploadRequest;
 import com.sirine.applyflow.resume.response.ResumeDocumentResponse;
 import com.sirine.applyflow.storage.StorageService;
 import com.sirine.applyflow.user.UserRepository;
+import com.sirine.applyflow.validation.ValidationConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
@@ -22,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.Normalizer;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -31,7 +31,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ResumeServiceImpl implements ResumeService {
 
-    private static final long MAX_FILE_SIZE_BYTES = 5L * 1024 * 1024;
+    private static final long MAX_FILE_SIZE_BYTES = ValidationConstants.FILE_MAX_BYTES;
+    private static final Duration VIEW_URL_TTL = Duration.ofMinutes(10);
 
     private static final Map<String, String> ACCEPTED_MIMES = Map.of(
             "application/pdf", "pdf",
@@ -45,6 +46,7 @@ public class ResumeServiceImpl implements ResumeService {
     private final ResumeMapper resumeMapper;
     private final Tika tika;
 
+
     @Override
     @Transactional
     public ResumeDocumentResponse upload(final ResumeUploadRequest request, final String userId) {
@@ -56,8 +58,6 @@ public class ResumeServiceImpl implements ResumeService {
 
         final String extension = ACCEPTED_MIMES.get(mime);
         final String storageKey = "users/%s/resumes/%s.%s".formatted(userId, UUID.randomUUID(), extension);
-        final String safeLabel = sanitizeLabel(request.label());
-
         try {
             storageService.upload(storageKey, file.getInputStream(), file.getSize(), mime);
         } catch (IOException e) {
@@ -80,14 +80,18 @@ public class ResumeServiceImpl implements ResumeService {
         });
 
         final boolean firstUpload = resumeRepository.findByUser_IdAndPrimaryTrue(userId).isEmpty();
+        
+        final String resolvedLabel = resolveLabel(request.label(), file);
 
         final ResumeDocument saved = resumeRepository.save(ResumeDocument.builder()
                 .user(user)
-                .label(safeLabel)
+                .label(resolvedLabel)
                 .storageKey(storageKey)
                 .mimeType(mime)
                 .sizeBytes(file.getSize())
                 .primary(firstUpload)
+                .parseStatus(ResumeParseStatus.PROCESSING)
+                .parseError(null)
                 .build());
 
         // Dispatch parsing after the transaction commits so the async thread sees the persisted row.
@@ -101,6 +105,8 @@ public class ResumeServiceImpl implements ResumeService {
 
         return resumeMapper.toResponse(saved);
     }
+
+
 
     @Override
     @Transactional(readOnly = true)
@@ -135,9 +141,8 @@ public class ResumeServiceImpl implements ResumeService {
         final ResumeDocument resume = resumeRepository.findByIdAndUser_Id(resumeId, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESUME_NOT_FOUND, resumeId));
 
-        // Clear parsedAt so clients can detect "parsing in progress" by polling for a non-null value.
-        // Hibernate dirty-checks the managed entity and flushes on commit — no explicit save needed.
-        resume.setParsedAt(null);
+        resume.setParseStatus(ResumeParseStatus.PROCESSING);
+        resume.setParseError(null);
 
         final String id = resume.getId();
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
@@ -148,6 +153,93 @@ public class ResumeServiceImpl implements ResumeService {
         });
 
         return resumeMapper.toResponse(resume);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public String getViewUrl(String resumeId, String userId) {
+        final ResumeDocument resume = resumeRepository.findByIdAndUser_Id(resumeId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESUME_NOT_FOUND, resumeId));
+        return storageService.presignedGetUrl(resume.getStorageKey(), VIEW_URL_TTL).toString();
+    }
+
+    @Override
+    @Transactional
+    public ResumeDocumentResponse updateLabel(
+            final String resumeId,
+            final ResumeUpdateLabelRequest request,
+            final String userId) {
+        final ResumeDocument resume = findOwnedResume(resumeId, userId);
+        resume.setLabel(sanitizeLabel(request.label()));
+        return resumeMapper.toResponse(resumeRepository.save(resume));
+    }
+
+    @Override
+    @Transactional
+    public ResumeDocumentResponse replaceFile(
+            final String resumeId,
+            final ResumeReplaceFileRequest request,
+            final String userId) {
+        final ResumeDocument resume = findOwnedResume(resumeId, userId);
+
+        final MultipartFile file = request.file();
+        final String mime = validateFileAndDetectMime(file);
+        final String extension = ACCEPTED_MIMES.get(mime);
+
+        final String oldStorageKey = resume.getStorageKey();
+        final String newStorageKey = "users/%s/resumes/%s.%s".formatted(
+                userId, UUID.randomUUID(), extension);
+
+        try {
+            storageService.upload(newStorageKey, file.getInputStream(), file.getSize(), mime);
+        } catch (IOException e) {
+            log.error("Failed to read replacement multipart file for resume {}", resumeId, e);
+            throw new BusinessException(ErrorCode.RESUME_FILE_READ_FAILED);
+        }
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(final int status) {
+                if (status == STATUS_ROLLED_BACK) {
+                    try {
+                        storageService.delete(newStorageKey);
+                    } catch (Exception e) {
+                        log.error("S3 cleanup failed for key {} after rollback", newStorageKey, e);
+                    }
+                }
+            }
+        });
+
+        resume.setStorageKey(newStorageKey);
+        resume.setMimeType(mime);
+        resume.setSizeBytes(file.getSize());
+        resume.setParsedAt(null);
+        resume.setParseStatus(ResumeParseStatus.PROCESSING);
+        resume.setParseError(null);
+        resume.getSections().clear();
+
+        if (request.label() != null) {
+            resume.setLabel(sanitizeLabel(request.label()));
+        } else if (resume.getLabel() == null) {
+            resume.setLabel(fallbackLabelFromFile(file));
+        }
+
+        final ResumeDocument saved = resumeRepository.save(resume);
+        final String id = saved.getId();
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                try {
+                    storageService.delete(oldStorageKey);
+                } catch (Exception e) {
+                    log.error("Failed to delete old storage key {} after file replacement", oldStorageKey, e);
+                }
+                parsingService.parseAsync(id);
+            }
+        });
+
+        return resumeMapper.toResponse(saved);
     }
 
     @Override
@@ -190,5 +282,27 @@ public class ResumeServiceImpl implements ResumeService {
             throw new BusinessException(ErrorCode.RESUME_INVALID_FILE, mime);
         }
         return mime;
+    }
+
+    private ResumeDocument findOwnedResume(final String resumeId, final String userId) {
+        return resumeRepository.findByIdAndUser_Id(resumeId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESUME_NOT_FOUND, resumeId));
+    }
+
+
+    private String resolveLabel(final String label, final MultipartFile file) {
+        final String sanitized = sanitizeLabel(label);
+        return (sanitized != null) ? sanitized : fallbackLabelFromFile(file);
+    }
+
+    private String fallbackLabelFromFile(final MultipartFile file) {
+        final String original = file.getOriginalFilename();
+        if (original == null || original.isBlank()) {
+            return "Untitled resume";
+        }
+        final int dot = original.lastIndexOf('.');
+        final String base = dot > 0 ? original.substring(0, dot) : original;
+        final String sanitized = sanitizeLabel(base);
+        return sanitized != null ? sanitized : "Untitled resume";
     }
 }
