@@ -1,0 +1,41 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: jdbc:h2:mem:applyflow;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
+
+ai:
+  provider: gemini
+  model: test-model
+  api-key: test-api-key
+
+app:
+  cors:
+    allowed-origins: http://localhost:5173
+  cookie:
+    secure: false
+  security:
+    public-paths: /api/v1/auth/**
+    jwt:
+      access-token-expiration: 86400000
+      refresh-token-expiration: 604800000
+      private-key-path: ./keys/local-only/private_key.pem
+      public-key-path: ./keys/local-only/public_key.pem
+    disposable-emails: mailinator
+
+storage:
+  provider: s3
+  endpoint: http://localhost:9000
+  region: eu-west-3
+  bucket: applyflow
+  access-key: minioadmin
+  secret-key: minioadmin

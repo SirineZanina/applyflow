@@ -1,5 +1,6 @@
 package com.sirine.applyflow.user.request;
 
+import com.sirine.applyflow.validation.ValidationConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
@@ -9,13 +10,13 @@ import java.time.LocalDate;
 
 public record ProfileUpdateRequest(
 
-        @Size(min = 2, max = 50, message = "VALIDATION.PROFILE_UPDATE.FIRSTNAME.SIZE")
-        @Pattern(regexp = "^[\\p{L} '-]+$", message = "VALIDATION.PROFILE_UPDATE.FIRSTNAME.PATTERN")
+        @Size(min = ValidationConstants.NAME_MIN, max = ValidationConstants.NAME_MAX, message = "VALIDATION.PROFILE_UPDATE.FIRSTNAME.SIZE")
+        @Pattern(regexp = ValidationConstants.NAME_PATTERN, message = "VALIDATION.PROFILE_UPDATE.FIRSTNAME.PATTERN")
         @Schema(description = "The first name of the user", example = "Sirine")
         String firstName,
 
-        @Size(min = 2, max = 50, message = "VALIDATION.PROFILE_UPDATE.LASTNAME.SIZE")
-        @Pattern(regexp = "^[\\p{L} '-]+$", message = "VALIDATION.PROFILE_UPDATE.LASTNAME.PATTERN")
+        @Size(min = ValidationConstants.NAME_MIN, max = ValidationConstants.NAME_MAX, message = "VALIDATION.PROFILE_UPDATE.LASTNAME.SIZE")
+        @Pattern(regexp = ValidationConstants.NAME_PATTERN, message = "VALIDATION.PROFILE_UPDATE.LASTNAME.PATTERN")
         @Schema(description = "The last name of the user", example = "Zanina")
         String lastName,
 
