@@ -1,7 +1,10 @@
+export type ResumeParseStatus = 'PENDING' | 'PROCESSING' | 'SUCCESS' | 'FAILED'
+
 export interface ResumeSection {
   id: string
-  sectionType: string
-  content: string
+  type: string
+  rawJson: unknown
+  orderIndex: number
 }
 
 export interface ResumeDocument {
@@ -11,7 +14,10 @@ export interface ResumeDocument {
   mimeType: string
   sizeBytes: number
   primary: boolean
+  parseStatus: ResumeParseStatus
+  parseError: string | null
   parsedAt: string | null
   createdDate: string
+  lastModifiedDate: string
   sections: ResumeSection[]
 }
