@@ -47,6 +47,18 @@ public class CandidateProfile extends BaseEntity {
     @Column(name = "location")
     private List<String> desiredLocations = new ArrayList<>();
 
+    @ElementCollection
+    @CollectionTable(name = "profile_skills",
+            joinColumns = @JoinColumn(name = "profile_id"))
+    @Column(name = "skill")
+    private List<String> skills = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "profile_company_sizes",
+            joinColumns = @JoinColumn(name = "profile_id"))
+    @Column(name = "company_size")
+    private List<String> companySizes = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
     @Column(name = "remote_preference")
     private RemotePreference remotePreference;

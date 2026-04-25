@@ -8,5 +8,4 @@ public interface CandidateProfileRepository extends JpaRepository<CandidateProfi
 
     Optional<CandidateProfile> findByUser_Id(String userId);
     boolean existsByUser_Id(String userId);
-
 }

@@ -13,6 +13,8 @@ public record CandidateProfileResponse(
         Integer yearsExperience,
         List<String> desiredRoles,
         List<String> desiredLocations,
+        List<String> skills,
+        List<String> companySizes,
         RemotePreference remotePreference,
         Integer salaryMin,
         Integer salaryMax,
