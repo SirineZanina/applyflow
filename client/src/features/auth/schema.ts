@@ -1,17 +1,34 @@
 import { z } from "zod";
+import {
+  NAME_MAX,
+  NAME_MIN,
+  NAME_PATTERN,
+  PASSWORD_MAX,
+  PASSWORD_MIN,
+  PASSWORD_PATTERN,
+  PHONE_PATTERN,
+} from "@/lib/validation/constants";
 
 export const signInSchema = z.object({
   email: z.email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  // Sign-in only requires a non-empty password — server validates against the
+  // stored hash. Strength rules apply at sign-up / change-password.
+  password: z.string().min(1, "Password is required"),
 });
 
 const nameSchema = z
   .string()
-  .min(2, "Must be at least 2 characters")
-  .max(50, "Must be at most 50 characters")
+  .min(NAME_MIN, `Must be at least ${NAME_MIN} characters`)
+  .max(NAME_MAX, `Must be at most ${NAME_MAX} characters`)
+  .regex(NAME_PATTERN, "Only letters, spaces, apostrophes, and hyphens are allowed");
+
+const strongPassword = z
+  .string()
+  .min(PASSWORD_MIN, `Must be at least ${PASSWORD_MIN} characters`)
+  .max(PASSWORD_MAX, `Must be at most ${PASSWORD_MAX} characters`)
   .regex(
-    /^[\p{L} '-]+$/u,
-    "Only letters, spaces, apostrophes, and hyphens are allowed",
+    PASSWORD_PATTERN,
+    "Password must contain uppercase, lowercase, number, and special character",
   );
 
 export const signUpSchema = z
@@ -19,19 +36,12 @@ export const signUpSchema = z
     firstName: nameSchema,
     lastName: nameSchema,
     email: z.email("Invalid email address"),
-    phoneNumber: z.string().regex(/^\+?[1-9]\d{8,13}$/, "Invalid phone number"),
-    password: z
-      .string()
-      .min(8, "Must be at least 8 characters")
-      .max(100, "Must be at most 100 characters")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).*$/,
-        "Password must contain uppercase, lowercase, number, and special character",
-      ),
+    phoneNumber: z.string().regex(PHONE_PATTERN, "Invalid phone number"),
+    password: strongPassword,
     confirmPassword: z
       .string()
-      .min(8, "Must be at least 8 characters")
-      .max(100, "Must be at most 100 characters"),
+      .min(PASSWORD_MIN, `Must be at least ${PASSWORD_MIN} characters`)
+      .max(PASSWORD_MAX, `Must be at most ${PASSWORD_MAX} characters`),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",

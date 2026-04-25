@@ -1,54 +1,110 @@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from '@tanstack/react-router';
+import { toast } from 'sonner';
 import { signInSchema, type SignInInput } from '../schema';
 import { useSignIn } from '../hooks';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Field, FieldLabel, FieldError } from '@/components/ui/field';
+import { SocialButtons } from './SocialButtons';
+import { getErrorMessage } from '@/lib/api/error-message';
 
 export function SignInForm() {
-    const { mutate: signIn, isPending, error } = useSignIn()
-    const { control, handleSubmit, formState: { errors }} = useForm<SignInInput>({
-        resolver: zodResolver(signInSchema),
-        defaultValues: { email: '', password: ''}
-    })
+  const { mutate: signIn, isPending, error } = useSignIn();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignInInput>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: { email: '', password: '' },
+  });
 
-    return (
-        <form onSubmit={handleSubmit((data) => signIn(data))} className='space-y-4'>
-            <div className='space-y-1'>
-                <Label htmlFor='email'>Email</Label>
-                <Controller
-                    name='email'
-                    control={control}
-                    render={({ field }) => 
-                        <Input id='email' type='email' placeholder='you@example.com' {...field} />
-                    }
-                />
-                {errors.email && <p className='text-sm text-destructive'>{errors.email.message}</p> }
-            </div>
-            <div className='space-y-1'>
-                <Label htmlFor='password'>Password</Label>
-                <Controller
-                    name='password'
-                    control={control}
-                    render={({ field }) => <Input id='password' type='password' placeholder='••••••••' {...field} />}
-                />
-                {errors.password && <p className='text-sm text-destructive'>{errors.password.message}</p> }
-            </div>
+  return (
+    <div>
+      <SocialButtons />
 
-            {error && <p className='text-sm text-destructive'>{error.message}</p> }
-            
-            <Button type='submit' className='w-full' disabled={isPending}>
-                {isPending ? 'Signing in…' : 'Sign in'}
-            </Button>
+      <div className="my-4.5 flex items-center gap-2.5">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-xs font-medium text-muted-foreground">
+          or continue with email
+        </span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
 
-            <p className='text-center text-sm text-muted-foreground'>
-                Don't have an account?{' '}
-                <Link to='/sign-up' className='text-primary underline-offset-4 hover:underline'>
-                    Sign up
-                </Link>
-            </p>
-        </form>
-    )
+      <form onSubmit={handleSubmit((data) => signIn(data))} className="space-y-3.5">
+        <Field data-invalid={!!errors.email}>
+          <FieldLabel htmlFor="email" className="text-[12px] font-semibold text-muted-foreground">
+            Email
+          </FieldLabel>
+          <Controller
+            name="email"
+            control={control}
+            render={({ field }) => (
+              <Input
+                id="email"
+                type="email"
+                placeholder="alex@example.com"
+                autoComplete="email"
+                {...field}
+              />
+            )}
+          />
+          <FieldError errors={[errors.email]} />
+        </Field>
+
+        <Field data-invalid={!!errors.password}>
+          <FieldLabel htmlFor="password" className="text-[12px] font-semibold text-muted-foreground">
+            Password
+          </FieldLabel>
+          <Controller
+            name="password"
+            control={control}
+            render={({ field }) => (
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                autoComplete="current-password"
+                {...field}
+              />
+            )}
+          />
+          <FieldError errors={[errors.password]} />
+        </Field>
+
+        <div className="-mt-1 text-right">
+          <button
+            type="button"
+            onClick={() => toast.info('Password reset coming soon.')}
+            className="cursor-pointer border-0 bg-transparent text-[12px] font-semibold text-primary"
+          >
+            Forgot password?
+          </button>
+        </div>
+
+        {error && (
+          <p className="rounded-lg bg-danger-light px-3 py-2 text-sm text-danger">
+            {getErrorMessage(error, 'Sign in failed. Please try again.')}
+          </p>
+        )}
+
+        <Button
+          type="submit"
+          className="w-full rounded-lg text-sm font-bold"
+          disabled={isPending}
+        >
+          {isPending ? 'Signing in…' : 'Sign in'}
+        </Button>
+
+        <p className="mt-5 text-center text-[13px] text-muted-foreground">
+          Don&apos;t have an account?{' '}
+          <Link to="/sign-up" className="font-bold text-primary">
+            Sign up free
+          </Link>
+        </p>
+      </form>
+    </div>
+  );
 }

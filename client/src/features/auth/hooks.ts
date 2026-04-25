@@ -3,6 +3,8 @@ import { useRouter } from "@tanstack/react-router";
 import { login, logout, register } from "./api";
 import { useAuthStore } from "@/stores/auth.store";
 import type { SignInInput, SignUpInput } from "./schema";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/api/error-message";
 
 export function useSignIn() {
   const { setSession } = useAuthStore();
@@ -23,7 +25,11 @@ export function useSignUp() {
   return useMutation({
     mutationFn: (data: SignUpInput) => register(data),
     onSuccess: () => {
+      toast.success("Account created. Sign in to continue.");
       router.navigate({ to: "/sign-in" });
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, "Sign up failed."));
     },
   });
 }
@@ -36,9 +42,11 @@ export function useSignOut() {
     mutationFn: logout,
     onSuccess: () => {
       clear();
+      toast.success("Signed out");
       router.navigate({ to: "/sign-in" });
     },
     onError: () => {
+      toast.error("Sign out failed");
       clear();
       router.navigate({ to: "/sign-in" });
     },
