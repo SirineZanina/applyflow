@@ -13,6 +13,10 @@ const nullableInt = (schema: z.ZodNumber) =>
     z.string().transform(Number).pipe(schema),
   ])
 
+const normalizedStringList = z.array(z.string()).transform((values) =>
+  Array.from(new Set(values.map((value) => value.trim()).filter(Boolean))),
+)
+
 export const profileSchema = z.object({
   headline: nullableString(z.string().max(255, 'Headline must be 255 characters or fewer')),
   summary: nullableString(z.string()),
@@ -22,8 +26,10 @@ export const profileSchema = z.object({
       .min(0, 'Years of experience cannot be negative')
       .max(50, 'Years of experience cannot exceed 50')
   ),
-  desiredRoles: z.array(z.string()),
-  desiredLocations: z.array(z.string()),
+  desiredRoles: normalizedStringList,
+  desiredLocations: normalizedStringList,
+  skills: normalizedStringList,
+  companySizes: normalizedStringList,
   remotePreference: z.union([
     z.null(),
     z.literal('').transform((): null => null),

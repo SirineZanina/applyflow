@@ -8,6 +8,8 @@ export interface CandidateProfile {
   yearsExperience: number | null;
   desiredRoles: string[];
   desiredLocations: string[];
+  skills: string[];
+  companySizes: string[];
   remotePreference: RemotePreference | null;
   salaryMin: number | null;
   salaryMax: number | null;
