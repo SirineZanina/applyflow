@@ -27,14 +27,19 @@ public enum ErrorCode {
     AI_RESPONSE_PARSE_FAILED("AI_RESPONSE_PARSE_FAILED", "Failed to parse AI response: %s", HttpStatus.INTERNAL_SERVER_ERROR),
     CANDIDATE_PROFILE_NOT_FOUND("PROFILE_NOT_FOUND", "Candidate profile not found for user %s", HttpStatus.NOT_FOUND),
     RESUME_NOT_FOUND("RESUME_NOT_FOUND", "Resume not found with id %s", HttpStatus.NOT_FOUND),
+    JOB_LISTING_NOT_FOUND("JOB_LISTING_NOT_FOUND", "Job listing not found with id %s", HttpStatus.NOT_FOUND),
     RESUME_INVALID_FILE("RESUME_INVALID_FILE", "Unsupported resume file type %s", HttpStatus.BAD_REQUEST),
     RESUME_FILE_TOO_LARGE("RESUME_FILE_TOO_LARGE", "Resume file exceeds max size of %s bytes", HttpStatus.CONTENT_TOO_LARGE),
     RESUME_FILE_EMPTY("RESUME_FILE_EMPTY", "Resume file is empty", HttpStatus.BAD_REQUEST),
     RESUME_FILE_READ_FAILED("RESUME_FILE_READ_FAILED", "Failed to read resume file", HttpStatus.INTERNAL_SERVER_ERROR),
+    DOCUMENT_NOT_FOUND("DOCUMENT_NOT_FOUND", "Generated document not found with id %s", HttpStatus.NOT_FOUND),
+    DOCUMENT_DUPLICATE_FAILED("DOCUMENT_DUPLICATE_FAILED", "Failed to duplicate document %s", HttpStatus.INTERNAL_SERVER_ERROR),
+    DOCUMENT_INVALID_UPLOAD("DOCUMENT_INVALID_UPLOAD", "Uploaded document is invalid", HttpStatus.BAD_REQUEST),
     INVALID_JWT_TOKEN("INVALID_JWT_TOKEN", "Invalid JWT token", HttpStatus.UNAUTHORIZED),
     INVALID_REFRESH_TOKEN("INVALID_REFRESH_TOKEN", "Invalid refresh token", HttpStatus.UNAUTHORIZED),
     INVALID_TOKEN_TYPE("INVALID_TOKEN_TYPE", "Invalid token type", HttpStatus.UNAUTHORIZED),
-    REFRESH_TOKEN_EXPIRED("REFRESH_TOKEN_EXPIRED", "Refresh token has expired", HttpStatus.UNAUTHORIZED);
+    REFRESH_TOKEN_EXPIRED("REFRESH_TOKEN_EXPIRED", "Refresh token has expired", HttpStatus.UNAUTHORIZED),
+    APPLICATION_NOT_FOUND("APPLICATION_NOT_FOUND", "Job application not found with id %s", HttpStatus.NOT_FOUND);
 
     private final String code;
     private final String defaultMessage; // i18n / l10n

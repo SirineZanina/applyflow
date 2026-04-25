@@ -3,8 +3,16 @@ spring:
     name: applyflow
   config:
     import: file:.env[.properties]
+  data:
+    web:
+      pageable:
+        # Hard cap on ?size= to prevent abusive large-page queries.
+        # Mirrors ValidationConstants.PAGE_SIZE_MAX / DEFAULT.
+        max-page-size: 100
+        default-page-size: 20
   servlet:
     multipart:
+      # Mirrors ValidationConstants.FILE_MAX_BYTES (5 MB). Keep both in sync.
       max-file-size: 5MB
       max-request-size: 5MB
   datasource:
@@ -53,18 +61,24 @@ app:
       refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800000}  # 7 days
       private-key-path: ${JWT_PRIVATE_KEY_PATH:./keys/local-only/private_key.pem}
       public-key-path: ${JWT_PUBLIC_KEY_PATH:./keys/local-only/public_key.pem}
+    cookie:
+      # Secure flag on the refresh-token cookie. Default true (production).
+      # Set COOKIE_SECURE=false in .env for local HTTP dev only.
+      secure: ${COOKIE_SECURE:true}
     disposable-emails: 10minutemail,20minutemail,33mail,5ymail,anonbox,guerrillamail,mailinator,maildrop,mailnesia,moakt,my10minutemail,throwawaymail,trashmail,temp-mail,tempmail,truemail,yopmail
 
 ai:
   provider: gemini
-  model: ${AI_MODEL:gemini-2.0-flash}
-  api-key: ${AI_API_KEY:${GEMINI_API_KEY:${ANTHROPIC_API_KEY:}}}
+  model: ${GEMINI_AI_MODEL}
+  api-key: ${GEMINI_API_KEY}
 
 storage:
   provider: s3
   endpoint: ${S3_ENDPOINT:http://localhost:9000}
   region: ${S3_REGION:eu-west-3}
   bucket: ${S3_BUCKET:applyflow}
-  access-key: ${S3_ACCESS_KEY:minioadmin}
-  secret-key: ${S3_SECRET_KEY:minioadmin}
+  # No defaults for credentials — startup fails if env is missing.
+  # Local dev sets these in .env; never hardcode here.
+  access-key: ${S3_ACCESS_KEY}
+  secret-key: ${S3_SECRET_KEY}
   path-style-access: true

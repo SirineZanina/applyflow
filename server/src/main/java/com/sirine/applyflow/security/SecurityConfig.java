@@ -53,6 +53,12 @@ public class SecurityConfig {
         try {
             return http
                     .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                    // CSRF disabled: this API is stateless and authenticates via a JWT in the
+                    // Authorization header — not a session cookie. CSRF only applies to
+                    // ambient credentials (cookies) the browser auto-attaches; an attacker
+                    // cannot read or set the Authorization header cross-origin.
+                    // The refresh-token cookie is scoped to /api/v1/auth and SameSite=Strict,
+                    // so it cannot be replayed cross-site either.
                     .csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(auth ->
                             auth.requestMatchers(permitAllPaths.toArray(String[]::new))
@@ -70,6 +76,11 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        if (allowedOrigins == null || allowedOrigins.isEmpty()
+                || allowedOrigins.stream().anyMatch(o -> o == null || o.isBlank() || "*".equals(o))) {
+            throw new IllegalStateException(
+                    "app.cors.allowed-origins must list explicit origins (no blanks, no '*'). Got: " + allowedOrigins);
+        }
         final CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(allowedOrigins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));

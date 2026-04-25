@@ -4,11 +4,16 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -128,14 +133,64 @@ public class ApplicationExceptionHandler {
                         .build());
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleException(final HttpMessageNotReadableException ex) {
+        log.debug("Malformed request body", ex);
+        return ResponseEntity.status(BAD_REQUEST)
+                .body(ErrorResponse.builder()
+                        .code(VALIDATION_ERROR.getCode())
+                        .message(VALIDATION_ERROR.getDefaultMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleException(final HttpRequestMethodNotSupportedException ex) {
+        log.debug("Method not supported", ex);
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(ErrorResponse.builder()
+                        .code("METHOD_NOT_ALLOWED")
+                        .message("Method not allowed")
+                        .build());
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleException(final EntityNotFoundException ex) {
+        log.debug("Entity not found", ex);
+        return ResponseEntity.status(NOT_FOUND)
+                .body(ErrorResponse.builder()
+                        .code("NOT_FOUND")
+                        .message("Resource not found")
+                        .build());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleException(final AccessDeniedException ex) {
+        log.debug("Access denied", ex);
+        return ResponseEntity.status(FORBIDDEN.getStatus())
+                .body(ErrorResponse.builder()
+                        .code(FORBIDDEN.getCode())
+                        .message(FORBIDDEN.getDefaultMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleException(final AuthenticationException ex) {
+        log.debug("Authentication failed", ex);
+        return ResponseEntity.status(UNAUTHORIZED.getStatus())
+                .body(ErrorResponse.builder()
+                        .code(UNAUTHORIZED.getCode())
+                        .message(UNAUTHORIZED.getDefaultMessage())
+                        .build());
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
-        log.error(ex.getMessage(), ex);
-        final ErrorResponse response = ErrorResponse.builder()
-                .code(INTERNAL_EXCEPTION.getCode())
-                .message(INTERNAL_EXCEPTION.getDefaultMessage())
-                .build();
+    public ResponseEntity<ErrorResponse> handleException(final Exception ex) {
+        // Log the full exception for ops; never leak the raw message or stack to the client.
+        log.error("Unhandled exception", ex);
         return ResponseEntity.status(INTERNAL_EXCEPTION.getStatus())
-                .body(response);
+                .body(ErrorResponse.builder()
+                        .code(INTERNAL_EXCEPTION.getCode())
+                        .message(INTERNAL_EXCEPTION.getDefaultMessage())
+                        .build());
     }
 }

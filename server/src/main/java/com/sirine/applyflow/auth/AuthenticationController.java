@@ -32,6 +32,9 @@ public class AuthenticationController {
     @Value("${app.security.jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
+    @Value("${app.security.cookie.secure:true}")
+    private boolean cookieSecure;
+
     private final AuthenticationService authenticationService;
 
     @PostMapping("/authenticate")
@@ -77,26 +80,21 @@ public class AuthenticationController {
         return ResponseEntity.noContent().build();
     }
 
-    private void setRefreshCookie(final HttpServletResponse response, final
-    String token) {
-        final ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE_NAME,
-                        token)
-                .httpOnly(true)
-                .sameSite("Strict")
-                .path(REFRESH_COOKIE_PATH)
-                .maxAge(refreshTokenExpiration / 1000)
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    private void setRefreshCookie(final HttpServletResponse response, final String token) {
+        response.addHeader(HttpHeaders.SET_COOKIE, buildRefreshCookie(token, refreshTokenExpiration / 1000).toString());
     }
 
     private void clearRefreshCookie(final HttpServletResponse response) {
-        final ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE_NAME,
-                        "")
+        response.addHeader(HttpHeaders.SET_COOKIE, buildRefreshCookie("", 0).toString());
+    }
+
+    private ResponseCookie buildRefreshCookie(final String value, final long maxAgeSeconds) {
+        return ResponseCookie.from(REFRESH_COOKIE_NAME, value)
                 .httpOnly(true)
+                .secure(cookieSecure)
                 .sameSite("Strict")
                 .path(REFRESH_COOKIE_PATH)
-                .maxAge(0)
+                .maxAge(maxAgeSeconds)
                 .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 }
