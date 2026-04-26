@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Controller, type Control } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import type { ProfileInput } from '../schema'
 import { ProfileSection } from './ProfileSection'
 
@@ -24,7 +25,7 @@ function TagField({ label, placeholder, values, onChange }: Readonly<TagFieldPro
 
   return (
     <div className="space-y-2.5">
-      <label className="text-xs font-semibold text-muted-foreground">{label}</label>
+      <Label className="text-xs font-semibold text-muted-foreground">{label}</Label>
       <div className="flex flex-wrap gap-1.5">
         {values.length > 0 ? (
           values.map((value) => (
@@ -33,14 +34,15 @@ function TagField({ label, placeholder, values, onChange }: Readonly<TagFieldPro
               className="inline-flex items-center gap-1 rounded-md bg-primary-light px-2 py-1 text-xs font-semibold text-primary"
             >
               {value}
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 aria-label={`Remove ${value}`}
                 onClick={() => onChange(values.filter((item) => item !== value))}
-                className="text-sm leading-none"
+                className="h-auto p-0 text-sm leading-none hover:bg-transparent"
               >
                 ×
-              </button>
+              </Button>
             </span>
           ))
         ) : (

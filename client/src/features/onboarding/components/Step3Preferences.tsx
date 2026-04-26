@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button'
+import { Slider } from '@/components/ui/slider'
 import {
   COMPANY_SIZES,
   ROLE_OPTIONS,
@@ -17,17 +19,17 @@ interface TogglePillProps {
 
 function TogglePill({ label, active, onClick }: TogglePillProps) {
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
       onClick={onClick}
-      className={`cursor-pointer rounded-md border px-3 py-1.5 text-xs transition-all ${
+      className={`h-auto rounded-md border px-3 py-1.5 text-xs transition-all hover:bg-transparent ${
         active
           ? 'border-primary bg-primary-light font-bold text-primary'
-          : 'border-border bg-transparent font-medium text-muted-foreground'
+          : 'border-border font-medium text-muted-foreground'
       }`}
     >
       {label}
-    </button>
+    </Button>
   )
 }
 
@@ -55,7 +57,6 @@ export function Step3Preferences({ data, onChange }: Props) {
 
   return (
     <div>
-      {/* Role Types */}
       <div className="mb-4">
         <span className={sectionLabelClassName}>Role Types</span>
         <div className="flex flex-wrap gap-2">
@@ -70,51 +71,47 @@ export function Step3Preferences({ data, onChange }: Props) {
         </div>
       </div>
 
-      {/* Work Style */}
       <div className="mb-4">
         <span className={sectionLabelClassName}>Work Style</span>
         <div className="flex gap-2">
           {WORK_STYLES.map((ws) => (
-            <button
+            <Button
               key={ws}
-              type="button"
+              variant="ghost"
               onClick={() => onChange({ workStyle: ws as WorkStyle })}
-              className={`flex-1 cursor-pointer rounded-lg border p-2.5 text-sm transition-all ${
+              className={`h-auto flex-1 rounded-lg border p-2.5 text-sm transition-all hover:bg-transparent ${
                 data.workStyle === ws
                   ? 'border-primary bg-primary-light font-bold text-primary'
-                  : 'border-border bg-transparent font-medium text-muted-foreground'
+                  : 'border-border font-medium text-muted-foreground'
               }`}
             >
               {ws}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
 
-      {/* Salary Range */}
       <div className="mb-4">
         <span className={sectionLabelClassName}>Target Salary Range</span>
         <div className="flex items-center gap-3">
           <span className="w-[54px] text-sm font-extrabold text-primary">
             ${data.salaryMin}K
           </span>
-          <input
-            type="range"
+          <Slider
             min={60}
             max={300}
             step={10}
-            value={data.salaryMin}
-            onChange={(e) => onChange({ salaryMin: Number(e.target.value) })}
-            className="flex-1 accent-primary"
+            value={[data.salaryMin]}
+            onValueChange={(values) => onChange({ salaryMin: values[0] ?? data.salaryMin })}
+            className="flex-1"
           />
-          <input
-            type="range"
+          <Slider
             min={60}
             max={300}
             step={10}
-            value={data.salaryMax}
-            onChange={(e) => onChange({ salaryMax: Number(e.target.value) })}
-            className="flex-1 accent-primary"
+            value={[data.salaryMax]}
+            onValueChange={(values) => onChange({ salaryMax: values[0] ?? data.salaryMax })}
+            className="flex-1"
           />
           <span className="w-[54px] text-right text-sm font-extrabold text-primary">
             ${data.salaryMax}K
@@ -122,7 +119,6 @@ export function Step3Preferences({ data, onChange }: Props) {
         </div>
       </div>
 
-      {/* Company Size */}
       <div>
         <span className={sectionLabelClassName}>Company Size</span>
         <div className="flex flex-wrap gap-2">

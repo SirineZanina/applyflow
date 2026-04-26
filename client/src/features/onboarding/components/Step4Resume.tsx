@@ -3,6 +3,7 @@ import { Check, Upload } from 'lucide-react'
 import { toast } from 'sonner'
 import { useUploadResume } from '@/features/resume/hooks'
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { FILE_MAX_BYTES, RESUME_ACCEPTED_MIMES, RESUME_ACCEPTED_EXTENSIONS } from '@/lib/validation/constants'
 
@@ -64,13 +65,14 @@ export function Step4Resume({ onSkip, onUploaded }: Props) {
           <p className="text-sm font-medium text-success">Uploaded!</p>
         </div>
       ) : (
-        <label
+        <Label
           htmlFor="resume-file"
           onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
           onDragLeave={() => setDragging(false)}
           onDrop={handleDrop}
           className={cn(dropzoneClass, 'cursor-pointer')}
         >
+          {/* Hidden file input — ref-driven, per shadcn exception */}
           <input
             id="resume-file"
             ref={inputRef}
@@ -83,9 +85,9 @@ export function Step4Resume({ onSkip, onUploaded }: Props) {
             <>
               <Upload size={24} className="text-primary" />
               <p className="text-sm font-medium text-primary">{file.name}</p>
-              <button
-                type="button"
-                className="text-xs text-muted-foreground hover:text-foreground"
+              <Button
+                variant="ghost"
+                className="h-auto p-0 text-xs text-muted-foreground hover:bg-transparent hover:text-foreground"
                 onClick={(e) => {
                   e.preventDefault()
                   setFile(null)
@@ -93,7 +95,7 @@ export function Step4Resume({ onSkip, onUploaded }: Props) {
                 }}
               >
                 Change file
-              </button>
+              </Button>
             </>
           ) : (
             <>
@@ -104,7 +106,7 @@ export function Step4Resume({ onSkip, onUploaded }: Props) {
               </div>
             </>
           )}
-        </label>
+        </Label>
       )}
 
       {file && !uploaded && (
@@ -113,13 +115,13 @@ export function Step4Resume({ onSkip, onUploaded }: Props) {
         </Button>
       )}
 
-      <button
-        type="button"
+      <Button
+        variant="ghost"
         onClick={onSkip}
-        className="w-full text-center text-sm text-muted-foreground hover:text-foreground"
+        className="w-full text-sm text-muted-foreground hover:bg-transparent hover:text-foreground"
       >
         Skip for now
-      </button>
+      </Button>
     </div>
   )
 }

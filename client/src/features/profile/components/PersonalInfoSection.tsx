@@ -1,5 +1,6 @@
 import { Controller, type Control, type FieldErrors } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import type { AuthUser } from '@/types/auth'
 import type { ProfileInput } from '../schema'
@@ -29,9 +30,9 @@ export function PersonalInfoSection({ control, errors, user }: Readonly<Props>) 
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <label htmlFor="headline" className="text-xs font-semibold text-muted-foreground">
+          <Label htmlFor="headline" className="text-xs font-semibold text-muted-foreground">
             Current Title
-          </label>
+          </Label>
           <Controller
             name="headline"
             control={control}
@@ -49,9 +50,9 @@ export function PersonalInfoSection({ control, errors, user }: Readonly<Props>) 
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="experience" className="text-xs font-semibold text-muted-foreground">
+          <Label htmlFor="experience" className="text-xs font-semibold text-muted-foreground">
             Years of Experience
-          </label>
+          </Label>
           <Controller
             name="yearsExperience"
             control={control}
@@ -73,14 +74,14 @@ export function PersonalInfoSection({ control, errors, user }: Readonly<Props>) 
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-muted-foreground">Email</label>
+          <Label className="text-xs font-semibold text-muted-foreground">Email</Label>
           <Input value={user?.email ?? ''} readOnly className="h-9 opacity-60" />
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="locations" className="text-xs font-semibold text-muted-foreground">
+          <Label htmlFor="locations" className="text-xs font-semibold text-muted-foreground">
             Preferred Locations
-          </label>
+          </Label>
           <Controller
             name="desiredLocations"
             control={control}
@@ -105,9 +106,9 @@ export function PersonalInfoSection({ control, errors, user }: Readonly<Props>) 
       </div>
 
       <div className="mt-3 space-y-1.5">
-        <label htmlFor="summary" className="text-xs font-semibold text-muted-foreground">
+        <Label htmlFor="summary" className="text-xs font-semibold text-muted-foreground">
           Professional Summary
-        </label>
+        </Label>
         <Controller
           name="summary"
           control={control}

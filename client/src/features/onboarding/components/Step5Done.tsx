@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import type { WizardData } from '../types'
 
 interface Props {
@@ -25,7 +26,6 @@ export function Step5Done({ data, fullName, onFinish, isPending }: Props) {
 
   return (
     <div className="py-3 text-center">
-      {/* Success circle */}
       <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-success-light">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5">
           <polyline points="20 6 9 17 4 12" />
@@ -39,7 +39,6 @@ export function Step5Done({ data, fullName, onFinish, isPending }: Props) {
         ApplyFlow will start finding job matches right now. Your first matches are ready.
       </div>
 
-      {/* Summary card */}
       <div className="mb-6 rounded-xl border border-border bg-background p-4 text-left">
         <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.05em] text-muted-foreground">
           Your Profile Summary
@@ -54,18 +53,13 @@ export function Step5Done({ data, fullName, onFinish, isPending }: Props) {
         ))}
       </div>
 
-      <button
-        type="button"
+      <Button
         onClick={onFinish}
         disabled={isPending}
-        className={`w-full rounded-lg border-0 px-5 py-3 text-sm font-bold text-white transition-all ${
-          isPending
-            ? 'cursor-default bg-muted-foreground opacity-60'
-            : 'cursor-pointer bg-primary'
-        }`}
+        className="w-full rounded-lg px-5 py-3 text-sm font-bold"
       >
         {isPending ? 'Saving…' : 'Go to Dashboard →'}
-      </button>
+      </Button>
     </div>
   )
 }

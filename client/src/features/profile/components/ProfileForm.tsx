@@ -12,7 +12,7 @@ import { SkillsSection } from './SkillsSection'
 
 function LoadingSkeleton() {
   return (
-    <div className="max-w-[700px] space-y-4">
+    <div className="w-full space-y-4">
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <Skeleton className="h-7 w-52" />
@@ -20,9 +20,11 @@ function LoadingSkeleton() {
         </div>
         <Skeleton className="h-8 w-28" />
       </div>
-      {Array.from({ length: 3 }).map((_, index) => (
-        <Skeleton key={index} className="h-54 rounded-xl" />
-      ))}
+      <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+        {['profile-info', 'profile-skills', 'profile-preferences'].map((section) => (
+          <Skeleton key={section} className="h-54 rounded-xl" />
+        ))}
+      </div>
     </div>
   )
 }
@@ -87,7 +89,7 @@ export function ProfileForm() {
           onSuccess: (updated) => reset(toFormValues(updated)),
         }),
       )}
-      className="max-w-[700px]"
+      className="w-full"
     >
       <header className="mb-5 flex items-center justify-between gap-3">
         <div>
@@ -107,9 +109,11 @@ export function ProfileForm() {
         </Button>
       </header>
 
-      <PersonalInfoSection control={control} errors={errors} user={user} />
-      <SkillsSection control={control} />
-      <PreferencesSection control={control} errors={errors} />
+      <div className="grid items-start gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+        <PersonalInfoSection control={control} errors={errors} user={user} />
+        <SkillsSection control={control} />
+        <PreferencesSection control={control} errors={errors} />
+      </div>
     </form>
   )
 }

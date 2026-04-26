@@ -1,4 +1,10 @@
 import { z } from 'zod'
+import {
+  CURRENCY_LEN,
+  HEADLINE_MAX,
+  YEARS_EXPERIENCE_MAX,
+  YEARS_EXPERIENCE_MIN,
+} from '@/lib/validation/constants'
 
 const REMOTE_PREFERENCES = ['REMOTE', 'HYBRID', 'ON_SITE', 'FLEXIBLE'] as const
 
@@ -18,13 +24,13 @@ const normalizedStringList = z.array(z.string()).transform((values) =>
 )
 
 export const profileSchema = z.object({
-  headline: nullableString(z.string().max(255, 'Headline must be 255 characters or fewer')),
+  headline: nullableString(z.string().max(HEADLINE_MAX, `Headline must be ${HEADLINE_MAX} characters or fewer`)),
   summary: nullableString(z.string()),
   yearsExperience: nullableInt(
     z.number()
       .int('Years of experience must be a whole number')
-      .min(0, 'Years of experience cannot be negative')
-      .max(50, 'Years of experience cannot exceed 50')
+      .min(YEARS_EXPERIENCE_MIN, 'Years of experience cannot be negative')
+      .max(YEARS_EXPERIENCE_MAX, `Years of experience cannot exceed ${YEARS_EXPERIENCE_MAX}`)
   ),
   desiredRoles: normalizedStringList,
   desiredLocations: normalizedStringList,
@@ -47,7 +53,7 @@ export const profileSchema = z.object({
   ),
   currency: nullableString(
     z.string()
-      .length(3, 'Currency must be a 3-letter code (e.g. EUR, USD)')
+      .length(CURRENCY_LEN, `Currency must be a ${CURRENCY_LEN}-letter code (e.g. EUR, USD)`)
   ),
 })
 .refine(

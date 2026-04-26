@@ -1,4 +1,9 @@
 import { Controller, type Control, type FieldErrors, useWatch } from 'react-hook-form'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Slider } from '@/components/ui/slider'
+import { CURRENCY_LEN } from '@/lib/validation/constants'
 import type { ProfileInput } from '../schema'
 import { ProfileSection } from './ProfileSection'
 
@@ -33,7 +38,7 @@ export function PreferencesSection({ control, errors }: Readonly<Props>) {
   return (
     <ProfileSection title="Job Preferences">
       <div className="mb-4 space-y-2">
-        <label className="text-xs font-semibold text-muted-foreground">Work Style</label>
+        <Label className="text-xs font-semibold text-muted-foreground">Work Style</Label>
         <Controller
           name="remotePreference"
           control={control}
@@ -42,18 +47,19 @@ export function PreferencesSection({ control, errors }: Readonly<Props>) {
               {REMOTE_OPTIONS.map((option) => {
                 const active = field.value === option.value
                 return (
-                  <button
+                  <Button
                     key={option.value}
                     type="button"
+                    variant="ghost"
                     onClick={() => field.onChange(active ? null : option.value)}
-                    className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
+                    className={`h-auto rounded-md border px-3 py-1.5 text-xs font-semibold hover:bg-transparent ${
                       active
                         ? 'border-primary bg-primary-light text-primary'
                         : 'border-border text-muted-foreground'
                     }`}
                   >
                     {option.label}
-                  </button>
+                  </Button>
                 )
               })}
             </div>
@@ -62,21 +68,20 @@ export function PreferencesSection({ control, errors }: Readonly<Props>) {
       </div>
 
       <div className="mb-4 space-y-2">
-        <label className="text-xs font-semibold text-muted-foreground">Salary Range</label>
+        <Label className="text-xs font-semibold text-muted-foreground">Salary Range</Label>
         <div className="flex items-center gap-2.5">
           <span className="w-12 text-xs font-bold text-primary">{formatK(salaryMin)}</span>
           <Controller
             name="salaryMin"
             control={control}
             render={({ field }) => (
-              <input
-                type="range"
+              <Slider
                 min={0}
                 max={300000}
                 step={5000}
-                value={Number(field.value) || 0}
-                onChange={(event) => field.onChange(Number(event.target.value))}
-                className="flex-1 accent-primary"
+                value={[Number(field.value) || 0]}
+                onValueChange={(values) => field.onChange(values[0] ?? 0)}
+                className="flex-1"
               />
             )}
           />
@@ -84,14 +89,13 @@ export function PreferencesSection({ control, errors }: Readonly<Props>) {
             name="salaryMax"
             control={control}
             render={({ field }) => (
-              <input
-                type="range"
+              <Slider
                 min={0}
                 max={300000}
                 step={5000}
-                value={Number(field.value) || 300000}
-                onChange={(event) => field.onChange(Number(event.target.value))}
-                className="flex-1 accent-primary"
+                value={[Number(field.value) || 300000]}
+                onValueChange={(values) => field.onChange(values[0] ?? 300000)}
+                className="flex-1"
               />
             )}
           />
@@ -101,7 +105,7 @@ export function PreferencesSection({ control, errors }: Readonly<Props>) {
       </div>
 
       <div className="mb-4 space-y-2">
-        <label className="text-xs font-semibold text-muted-foreground">Company Size</label>
+        <Label className="text-xs font-semibold text-muted-foreground">Company Size</Label>
         <Controller
           name="companySizes"
           control={control}
@@ -110,9 +114,10 @@ export function PreferencesSection({ control, errors }: Readonly<Props>) {
               {COMPANY_SIZE_OPTIONS.map((option) => {
                 const active = field.value.includes(option)
                 return (
-                  <button
+                  <Button
                     key={option}
                     type="button"
+                    variant="ghost"
                     onClick={() =>
                       field.onChange(
                         active
@@ -120,14 +125,14 @@ export function PreferencesSection({ control, errors }: Readonly<Props>) {
                           : [...field.value, option],
                       )
                     }
-                    className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
+                    className={`h-auto rounded-md border px-3 py-1.5 text-xs font-semibold hover:bg-transparent ${
                       active
                         ? 'border-primary bg-primary-light text-primary'
                         : 'border-border text-muted-foreground'
                     }`}
                   >
                     {option}
-                  </button>
+                  </Button>
                 )
               })}
             </div>
@@ -136,20 +141,20 @@ export function PreferencesSection({ control, errors }: Readonly<Props>) {
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="currency" className="text-xs font-semibold text-muted-foreground">
+        <Label htmlFor="currency" className="text-xs font-semibold text-muted-foreground">
           Currency
-        </label>
+        </Label>
         <Controller
           name="currency"
           control={control}
           render={({ field }) => (
-            <input
+            <Input
               id="currency"
               value={field.value ?? ''}
               onChange={field.onChange}
               placeholder="EUR"
-              maxLength={3}
-              className="h-8 w-20 rounded-md border border-input bg-background px-2 text-xs uppercase"
+              maxLength={CURRENCY_LEN}
+              className="h-8 w-20 text-xs uppercase"
             />
           )}
         />

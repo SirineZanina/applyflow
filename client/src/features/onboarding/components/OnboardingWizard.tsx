@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
+import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/auth.store'
 import { useUpsertProfile } from '@/features/profile/hooks'
 import {
@@ -136,21 +137,20 @@ export function OnboardingWizard() {
           {!isLastStep && (
             <div className="mt-6 flex gap-2.5">
               {step > 0 && (
-                <button
-                  type="button"
+                <Button
+                  variant="outline"
                   onClick={back}
-                  className="cursor-pointer rounded-lg border border-border bg-transparent px-5 py-2.5 text-sm font-semibold text-muted-foreground"
+                  className="rounded-lg px-5 py-2.5 text-sm font-semibold text-muted-foreground"
                 >
                   ← Back
-                </button>
+                </Button>
               )}
-              <button
-                type="button"
+              <Button
                 onClick={next}
-                className="flex-1 cursor-pointer rounded-lg border-0 bg-primary px-5 py-3 text-sm font-bold text-white transition-all"
+                className="flex-1 rounded-lg px-5 py-3 text-sm font-bold"
               >
                 {step === TOTAL_STEPS - 2 ? 'Finish setup →' : 'Continue →'}
-              </button>
+              </Button>
             </div>
           )}
         </div>

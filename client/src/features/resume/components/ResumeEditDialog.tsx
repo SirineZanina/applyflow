@@ -2,7 +2,15 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import type { ResumeDocument } from '@/types/resume'
+import {
+  FILE_MAX_BYTES,
+  LABEL_MAX,
+  LABEL_PATTERN,
+  RESUME_ACCEPTED_EXTENSIONS,
+  RESUME_ACCEPTED_MIMES,
+} from '@/lib/validation/constants'
 import { useReplaceResumeFile, useUpdateResumeLabel } from '../hooks'
 
 interface ResumeEditDialogProps {
@@ -15,7 +23,9 @@ export function ResumeEditDialog({ onClose, resume }: ResumeEditDialogProps) {
   const replaceFile = useReplaceResumeFile()
 
   const [label, setLabel] = useState(resume.label ?? '')
+  const [labelError, setLabelError] = useState<string | null>(null)
   const [file, setFile] = useState<File | null>(null)
+  const [fileError, setFileError] = useState<string | null>(null)
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -37,10 +47,38 @@ export function ResumeEditDialog({ onClose, resume }: ResumeEditDialogProps) {
     return selectedFile.name.replace(/\.[^/.]+$/, '') || 'Untitled resume'
   }
 
+  function validateLabel(value: string): string | null {
+    const trimmed = value.trim()
+    if (trimmed.length > LABEL_MAX) return `Label must be ${LABEL_MAX} characters or fewer`
+    if (trimmed.length > 0 && !LABEL_PATTERN.test(trimmed)) return 'Label contains invalid characters'
+    return null
+  }
+
+  function handleLabelChange(value: string) {
+    setLabel(value)
+    setLabelError(validateLabel(value))
+  }
+
+  function handleFileChange(selectedFile: File | null) {
+    setFile(selectedFile)
+    if (!selectedFile) { setFileError(null); return }
+    if (!RESUME_ACCEPTED_MIMES.includes(selectedFile.type as typeof RESUME_ACCEPTED_MIMES[number])) {
+      setFileError('Only PDF and DOCX files are supported.')
+    } else if (selectedFile.size > FILE_MAX_BYTES) {
+      setFileError(`File must be ${FILE_MAX_BYTES / 1024 / 1024} MB or smaller.`)
+    } else {
+      setFileError(null)
+    }
+  }
+
   function handleSubmit(event: React.SyntheticEvent<HTMLFormElement, SubmitEvent>) {
     event.preventDefault()
 
     const trimmedLabel = label.trim()
+    const error = validateLabel(trimmedLabel)
+    if (error) { setLabelError(error); return }
+    if (fileError) return
+
     const normalizedLabel = trimmedLabel === '' ? null : trimmedLabel
 
     if (file) {
@@ -85,28 +123,31 @@ export function ResumeEditDialog({ onClose, resume }: ResumeEditDialogProps) {
 
         <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-1">
-            <label className="text-sm font-medium">Label</label>
+            <Label className="text-sm font-medium">Label</Label>
             <Input
               type="text"
               value={label}
-              onChange={(event) => setLabel(event.target.value)}
-              maxLength={120}
+              onChange={(event) => handleLabelChange(event.target.value)}
+              maxLength={LABEL_MAX}
               disabled={isPending}
               placeholder="Resume label"
+              aria-invalid={labelError !== null}
             />
+            {labelError && <p className="text-xs text-destructive">{labelError}</p>}
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Replace file (optional)</label>
+            <Label className="text-sm font-medium">Replace file (optional)</Label>
             <Input
               type="file"
-              accept=".pdf,.docx"
+              accept={RESUME_ACCEPTED_EXTENSIONS}
               disabled={isPending}
-              onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+              onChange={(event) => handleFileChange(event.target.files?.[0] ?? null)}
             />
-            {file && (
+            {file && !fileError && (
               <p className="text-xs text-muted-foreground">Selected: {file.name}</p>
             )}
+            {fileError && <p className="text-xs text-destructive">{fileError}</p>}
           </div>
 
           <div className="flex justify-end gap-2">

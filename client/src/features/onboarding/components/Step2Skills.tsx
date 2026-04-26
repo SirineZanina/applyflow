@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import type { WizardData } from '../types'
 
 const SKILL_SUGGESTIONS = [
@@ -28,7 +30,6 @@ export function Step2Skills({ data, onChange }: Props) {
 
   return (
     <div>
-      {/* Tags */}
       <div className="mb-3.5 flex min-h-9 flex-wrap gap-2">
         {data.skills.map((s) => (
           <span
@@ -36,14 +37,14 @@ export function Step2Skills({ data, onChange }: Props) {
             className="inline-flex items-center gap-1 rounded-md bg-primary-light px-2.5 py-1 text-sm font-semibold text-primary"
           >
             {s}
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               aria-label={`Remove ${s}`}
               onClick={() => removeSkill(s)}
-              className="cursor-pointer border-0 bg-transparent p-0 text-base leading-none text-primary"
+              className="h-auto p-0 text-base leading-none text-primary hover:bg-transparent"
             >
               ×
-            </button>
+            </Button>
           </span>
         ))}
         {data.skills.length === 0 && (
@@ -51,29 +52,27 @@ export function Step2Skills({ data, onChange }: Props) {
         )}
       </div>
 
-      {/* Text input */}
-      <input
+      <Input
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSkill(input) } }}
         placeholder="Type a skill and press Enter…"
-        className="mb-3.5 h-10 w-full rounded-lg border border-border bg-card px-3 text-[13.5px] text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
+        className="mb-3.5 h-10"
       />
 
-      {/* Suggestions */}
       <p className="mb-2 text-xs font-semibold uppercase tracking-[0.05em] text-muted-foreground">
         Suggestions
       </p>
       <div className="flex flex-wrap gap-2">
         {SKILL_SUGGESTIONS.filter((s) => !data.skills.includes(s)).map((s) => (
-          <button
+          <Button
             key={s}
-            type="button"
+            variant="outline"
             onClick={() => addSkill(s)}
-            className="cursor-pointer rounded-md border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground transition-all hover:border-primary hover:text-primary"
+            className="h-auto rounded-md px-3 py-1 text-xs font-medium text-muted-foreground hover:border-primary hover:text-primary"
           >
             + {s}
-          </button>
+          </Button>
         ))}
       </div>
     </div>
