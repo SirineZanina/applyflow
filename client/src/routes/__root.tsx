@@ -1,4 +1,3 @@
-
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
 import { getAuthState } from '@/stores/auth.store'

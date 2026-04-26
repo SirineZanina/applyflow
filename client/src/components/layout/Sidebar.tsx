@@ -15,6 +15,7 @@ import { useSignOut } from '@/features/auth/hooks'
 import { useProfile } from '@/features/profile/hooks'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth.store'
+import { BoltIcon } from '../icons/BoltIcon'
 
 const NAV_ITEMS: ReadonlyArray<{
   to: '/dashboard' | '/jobs' | '/tracker' | '/auto-apply' | '/documents' | '/profile'
@@ -30,22 +31,6 @@ const NAV_ITEMS: ReadonlyArray<{
   { to: '/profile', label: 'Profile', icon: User },
 ] as const
 
-function BoltIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="white"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      aria-hidden="true"
-    >
-      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-    </svg>
-  )
-}
 
 export function Sidebar() {
   const signOut = useSignOut()
@@ -107,7 +92,6 @@ export function Sidebar() {
         </div>
 
         <Button
-          type="button"
           variant="ghost"
           className="h-auto w-full justify-start gap-2 rounded-md px-2 py-1.5 text-[12.5px] text-muted-foreground hover:text-foreground"
           onClick={() => signOut.mutate()}

@@ -20,7 +20,7 @@ export const PHONE_PATTERN = /^\+?[1-9]\d{8,13}$/;
 
 // Resume / file labels
 export const LABEL_MAX = 120;
-export const LABEL_PATTERN = /^[\p{L}\p{N} ._\-]{0,120}$/u;
+export const LABEL_PATTERN = /^[\p{L}\p{N} ._-]{0,120}$/u;
 
 // File upload (bytes) — must equal spring.servlet.multipart.max-file-size on the server.
 export const FILE_MAX_BYTES = 5 * 1024 * 1024;
@@ -62,12 +62,6 @@ export const ROLE_TYPES_MAX = 20;
 export const RESUME_ACCEPTED_MIMES = [
   "application/pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-] as const;
-
-export const PORTFOLIO_ACCEPTED_MIMES = [
-  ...RESUME_ACCEPTED_MIMES,
-  "image/png",
-  "image/jpeg",
 ] as const;
 
 export const RESUME_ACCEPTED_EXTENSIONS = ".pdf,.docx";
