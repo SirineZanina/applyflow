@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { RouteError } from "@/components/layout/RouteError";
 import { DocumentsPage } from "@/features/documents/components/DocumentsPage";
 import { createFileRoute } from "@tanstack/react-router";
