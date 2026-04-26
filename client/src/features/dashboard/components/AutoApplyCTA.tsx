@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+
 export function AutoApplyCTA() {
   return (
     <div className="relative overflow-hidden rounded-xl bg-primary p-5">
@@ -9,11 +11,12 @@ export function AutoApplyCTA() {
       <p className="mb-3.5 text-xs text-white/75">
         Complete your profile to unlock AI job applications.
       </p>
-      <button
-        className="cursor-pointer rounded-[7px] border-0 bg-white px-3.5 py-2 text-xs font-bold text-primary"
+      <Button
+        variant="ghost"
+        className="h-auto rounded-[7px] bg-white px-3.5 py-2 text-xs font-bold text-primary hover:bg-white/90"
       >
         Set up profile
-      </button>
+      </Button>
     </div>
   );
 }

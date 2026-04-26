@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/select";
 
 const ALL_STATUSES: ApplicationStatus[] = [
-  "SAVED",
   "APPLIED",
   "INTERVIEWING",
   "OFFER",

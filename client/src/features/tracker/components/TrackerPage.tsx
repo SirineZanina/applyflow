@@ -11,7 +11,9 @@ import {
 import { ApplicationForm } from '@/features/applications/components/ApplicationForm'
 import type { ApplicationStatus, JobApplication } from '@/features/applications/types'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import { NEXT_STEP_MAX } from '@/lib/validation/constants'
 
 const BOARD_STATUSES: ApplicationStatus[] = [
   'SAVED',
@@ -173,28 +175,30 @@ export function TrackerPage() {
 
         <div className="flex items-center gap-2">
           <div className="inline-flex rounded-lg bg-border p-0.5">
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => setView('kanban')}
-              className={`rounded-md px-3 py-1.5 text-xs font-semibold ${
+              className={`h-auto rounded-md px-3 py-1.5 text-xs font-semibold hover:bg-transparent ${
                 view === 'kanban'
                   ? 'bg-card text-foreground shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
                   : 'text-muted-foreground'
               }`}
             >
               Kanban
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => setView('table')}
-              className={`rounded-md px-3 py-1.5 text-xs font-semibold ${
+              className={`h-auto rounded-md px-3 py-1.5 text-xs font-semibold hover:bg-transparent ${
                 view === 'table'
                   ? 'bg-card text-foreground shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
                   : 'text-muted-foreground'
               }`}
             >
               Table
-            </button>
+            </Button>
           </div>
           <Button className="h-8 text-xs font-bold" onClick={() => setFormOpen(true)}>
             Add Application
@@ -315,14 +319,15 @@ export function TrackerPage() {
                   { key: 'date' as const, label: 'Applied' },
                 ].map((column) => (
                   <th key={column.key} className="px-3.5 py-2.5 text-left">
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
                       onClick={() => toggleSort(column.key)}
-                      className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.05em] text-muted-foreground"
+                      className="h-auto p-0 text-[11px] font-bold uppercase tracking-[0.05em] text-muted-foreground hover:bg-transparent"
                     >
                       {column.label}
                       <ArrowUpDown size={11} />
-                    </button>
+                    </Button>
                   </th>
                 ))}
                 <th className="px-3.5 py-2.5 text-left text-[11px] font-bold uppercase tracking-[0.05em] text-muted-foreground">
@@ -378,17 +383,18 @@ export function TrackerPage() {
                     {formatDatetime(application.nextStepAt)}
                   </td>
                   <td className="px-3.5 py-3">
-                    <input
+                    <Input
                       defaultValue={application.nextStep ?? ''}
                       onBlur={(event) =>
                         saveMetadata(
                           application,
-                          event.target.value,
+                          event.target.value.slice(0, NEXT_STEP_MAX),
                           application.nextStepAt?.slice(0, 16) ?? '',
                         )
                       }
+                      maxLength={NEXT_STEP_MAX}
                       placeholder="Review before submit"
-                      className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+                      className="h-8 w-full text-xs"
                     />
                   </td>
                   <td className="px-3.5 py-3">

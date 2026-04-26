@@ -93,15 +93,16 @@ export function ApplicationsPage() {
         <>
           <div className="flex gap-2 flex-wrap">
             {STATUS_FILTERS.map(({ label, value }) => (
-              <button
+              <Button
                 key={value}
+                variant="ghost"
                 onClick={() => {
                   setFilter(value);
                   setPage(0);
                 }}
-                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                className={`h-auto rounded-md px-3 py-1 text-sm font-medium transition-colors hover:bg-transparent ${
                   filter === value
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-primary text-primary-foreground hover:bg-primary"
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
                 }`}
               >
@@ -111,7 +112,7 @@ export function ApplicationsPage() {
                     ({data.content.filter((a) => a.status === value).length})
                   </span>
                 )}
-              </button>
+              </Button>
             ))}
           </div>
 

@@ -2,8 +2,19 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Slider } from '@/components/ui/slider'
 import { useAutomationLaunch, useAutomationPreview } from '../hooks'
+import {
+  AUTOMATION_JOB_IDS_MAX,
+  AUTOMATION_LIMIT_MAX,
+  AUTOMATION_LIMIT_MIN,
+  MATCH_PERCENT_MAX,
+  MATCH_PERCENT_MIN,
+  SEARCH_QUERY_MAX,
+} from '@/lib/validation/constants'
 
 const STEPS = ['Set Criteria', 'Review Matches', 'Confirm & Launch', 'Applying...'] as const
 const PERCENT_WIDTH_CLASS: Record<number, string> = {
@@ -129,7 +140,7 @@ export function AutoApplyPage() {
         query: query || undefined,
         remoteOnly,
         minMatch,
-        limit: 12,
+        limit: AUTOMATION_LIMIT_MAX,
       },
       {
         onSuccess: (response) => {
@@ -145,7 +156,7 @@ export function AutoApplyPage() {
 
     setStep(3)
     setProgress(0)
-    launchMutation.mutate(selected)
+    launchMutation.mutate(selected.slice(0, AUTOMATION_JOB_IDS_MAX))
   }
 
   return (
@@ -203,71 +214,72 @@ export function AutoApplyPage() {
 
           <div className="mt-5 grid gap-5 md:grid-cols-2">
             <div>
-              <label htmlFor="criteria-query" className="mb-1.5 block text-xs font-semibold text-foreground">
+              <Label htmlFor="criteria-query" className="mb-1.5 block text-xs font-semibold text-foreground">
                 Search Focus
-              </label>
+              </Label>
               <Input
                 id="criteria-query"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Frontend, product, remote..."
+                maxLength={SEARCH_QUERY_MAX}
                 className="h-9"
               />
             </div>
 
             <div>
-              <label htmlFor="criteria-min-match" className="mb-1.5 block text-xs font-semibold text-foreground">
+              <Label htmlFor="criteria-min-match" className="mb-1.5 block text-xs font-semibold text-foreground">
                 Minimum Match Score
-              </label>
-              <input
+              </Label>
+              <Slider
                 id="criteria-min-match"
-                type="range"
-                min={50}
-                max={95}
+                min={Math.max(50, MATCH_PERCENT_MIN)}
+                max={MATCH_PERCENT_MAX - 5}
                 step={5}
-                value={minMatch}
-                onChange={(event) => setMinMatch(Number(event.target.value))}
-                className="w-full accent-primary"
+                value={[minMatch]}
+                onValueChange={(values) => setMinMatch(values[0] ?? minMatch)}
+                className="w-full"
               />
               <p className="mt-1 text-xs font-bold text-primary">{minMatch}%+ jobs</p>
             </div>
 
             <div>
-              <label htmlFor="criteria-salary" className="mb-1.5 block text-xs font-semibold text-foreground">
+              <Label htmlFor="criteria-salary" className="mb-1.5 block text-xs font-semibold text-foreground">
                 Minimum Salary (K)
-              </label>
-              <input
+              </Label>
+              <Slider
                 id="criteria-salary"
-                type="range"
                 min={80}
                 max={250}
                 step={10}
-                value={salaryMin}
-                onChange={(event) => setSalaryMin(Number(event.target.value))}
-                className="w-full accent-primary"
+                value={[salaryMin]}
+                onValueChange={(values) => setSalaryMin(values[0] ?? salaryMin)}
+                className="w-full"
               />
               <p className="mt-1 text-xs font-bold text-primary">${salaryMin}K+</p>
             </div>
 
             <div className="space-y-2 pt-1">
-              <label className="flex items-center gap-2 text-sm text-foreground">
-                <input
-                  type="checkbox"
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="remote-only"
                   checked={remoteOnly}
-                  onChange={(event) => setRemoteOnly(event.target.checked)}
-                  className="accent-primary"
+                  onCheckedChange={(checked) => setRemoteOnly(checked === true)}
                 />
-                Remote positions only
-              </label>
-              <label className="flex items-center gap-2 text-sm text-foreground">
-                <input
-                  type="checkbox"
+                <Label htmlFor="remote-only" className="text-sm text-foreground">
+                  Remote positions only
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="include-cover-letter"
                   checked={includeCoverLetter}
-                  onChange={(event) => setIncludeCoverLetter(event.target.checked)}
-                  className="accent-primary"
+                  onCheckedChange={(checked) => setIncludeCoverLetter(checked === true)}
                 />
-                Generate cover letters
-              </label>
+                <Label htmlFor="include-cover-letter" className="text-sm text-foreground">
+                  Generate cover letters
+                </Label>
+              </div>
             </div>
           </div>
 
@@ -296,7 +308,7 @@ export function AutoApplyPage() {
                 const checked = selected.includes(job.jobId)
                 const confidence = job.confidenceLabel.toLowerCase().includes('high') ? 90 : 78
                 return (
-                  <label
+                  <Label
                     key={job.jobId}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 ${
                       checked
@@ -304,17 +316,17 @@ export function AutoApplyPage() {
                         : 'border-border bg-card'
                     }`}
                   >
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={checked}
-                      onChange={(event) =>
+                      onCheckedChange={(value) =>
                         setSelected((current) =>
-                          event.target.checked
-                            ? [...current, job.jobId]
-                            : current.filter((value) => value !== job.jobId),
+                          value === true
+                            ? current.length < AUTOMATION_JOB_IDS_MAX
+                              ? [...current, job.jobId]
+                              : current
+                            : current.filter((id) => id !== job.jobId),
                         )
                       }
-                      className="accent-primary"
                     />
                     <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary-light text-xs font-bold text-primary">
                       {job.companyName.slice(0, 2).toUpperCase()}
@@ -329,7 +341,7 @@ export function AutoApplyPage() {
                     <p className={`text-right text-xs font-bold ${confidence >= 85 ? 'text-success' : 'text-warning'}`}>
                       {confidence}%
                     </p>
-                  </label>
+                  </Label>
                 )
               })
             )}
@@ -342,7 +354,7 @@ export function AutoApplyPage() {
             <Button
               className="h-9 text-[13px] font-bold"
               onClick={() => setStep(2)}
-              disabled={selected.length === 0}
+              disabled={selected.length < AUTOMATION_LIMIT_MIN}
             >
               Next: Confirm
             </Button>
@@ -379,7 +391,7 @@ export function AutoApplyPage() {
             <Button
               className="h-9 text-[13px] font-bold"
               onClick={launchBatch}
-              disabled={selected.length === 0 || launchMutation.isPending}
+              disabled={selected.length < AUTOMATION_LIMIT_MIN || launchMutation.isPending}
             >
               {launchMutation.isPending ? 'Launching...' : 'Launch Auto-Apply'}
             </Button>

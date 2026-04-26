@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+
 const ACTIONS = [
   "Complete your profile",
   "Upload your first resume",
@@ -11,13 +13,14 @@ export function QuickActionsPanel() {
         Quick Actions
       </h3>
       {ACTIONS.map((label) => (
-        <button
+        <Button
           key={label}
-          className="flex w-full cursor-pointer items-center justify-between border-0 border-b border-border bg-transparent py-2.5 text-left text-[13px] font-medium text-foreground"
+          variant="ghost"
+          className="flex h-auto w-full items-center justify-between border-b border-border py-2.5 text-left text-[13px] font-medium text-foreground hover:bg-transparent"
         >
           {label}
           <span className="text-primary">→</span>
-        </button>
+        </Button>
       ))}
     </div>
   );
