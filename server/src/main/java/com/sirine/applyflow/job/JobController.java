@@ -2,6 +2,7 @@ package com.sirine.applyflow.job;
 
 import com.sirine.applyflow.application.response.JobApplicationResponse;
 import com.sirine.applyflow.application.response.PrepareJobApplicationResponse;
+import com.sirine.applyflow.application.service.JobApplicationService;
 import com.sirine.applyflow.common.SecurityUtils;
 import com.sirine.applyflow.job.response.JobCardResponse;
 import com.sirine.applyflow.job.response.JobDetailResponse;
@@ -28,7 +29,7 @@ import java.util.List;
 public class JobController {
 
     private final JobService jobService;
-    private final com.sirine.applyflow.application.service.JobApplicationService applicationService;
+    private final JobApplicationService applicationService;
 
     @GetMapping
     public ResponseEntity<Page<JobCardResponse>> list(

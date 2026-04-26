@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -189,7 +190,7 @@ public class JobMatchServiceImpl implements JobMatchService {
         return (double) matches / Math.max(leftTokens.size(), rightTokens.size());
     }
 
-    private Set<String> normalizeAll(final List<String> values) {
+    private Set<String> normalizeAll(final Collection<String> values) {
         final Set<String> normalized = new LinkedHashSet<>();
         if (values == null) {
             return normalized;

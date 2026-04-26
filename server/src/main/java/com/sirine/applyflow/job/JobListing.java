@@ -24,7 +24,7 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder
 @Table(name = "job_listings")
-public class `JobListing extends BaseEntity {
+public class JobListing extends BaseEntity {
 
     @Column(name = "company_name", nullable = false)
     private String companyName;
@@ -72,4 +72,13 @@ public class `JobListing extends BaseEntity {
 
     @Column(name = "active", nullable = false)
     private boolean active;
+
+    @Column(name = "external_source", length = 50)
+    private String externalSource;
+
+    @Column(name = "external_id", length = 255)
+    private String externalId;
+
+    @Column(name = "external_url", length = 500)
+    private String externalUrl;
 }

@@ -10,4 +10,6 @@ public interface JobListingRepository extends JpaRepository<JobListing, String> 
     List<JobListing> findByActiveTrueOrderByPostedAtDesc();
 
     Optional<JobListing> findByIdAndActiveTrue(String id);
+
+    Optional<JobListing> findByExternalSourceAndExternalId(String externalSource, String externalId);
 }
