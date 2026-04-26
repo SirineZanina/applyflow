@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { RouteError } from "@/components/layout/RouteError";
 import { GeneratorPage } from "@/features/generator/components/GeneratorPage";
 import { createFileRoute } from "@tanstack/react-router";

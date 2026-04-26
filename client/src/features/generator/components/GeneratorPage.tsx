@@ -10,6 +10,7 @@ import {
   useUpdateApplication,
 } from '@/features/applications/hooks'
 import { useDocument, useDocuments, useUpdateDocument } from '@/features/documents/hooks'
+import { COVER_LETTER_MAX, DOCUMENT_CONTENT_MAX } from '@/lib/validation/constants'
 
 interface GeneratorPageProps {
   applicationId: string
@@ -200,14 +201,15 @@ export function GeneratorPage({ applicationId }: Readonly<GeneratorPageProps>) {
                         </span>
                       </div>
                       <p className="text-xs text-foreground">{suggestion}</p>
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
                         onClick={() => setAppliedSuggestions((current) => [...new Set([...current, index])])}
                         disabled={applied}
-                        className="mt-2 text-[11px] font-semibold text-primary disabled:text-success"
+                        className="mt-2 h-auto p-0 text-[11px] font-semibold text-primary hover:bg-transparent disabled:text-success"
                       >
                         {applied ? 'Applied' : 'Apply suggestion'}
-                      </button>
+                      </Button>
                     </article>
                   )
                 })
@@ -282,6 +284,7 @@ export function GeneratorPage({ applicationId }: Readonly<GeneratorPageProps>) {
                   <textarea
                     value={resumeContent}
                     onChange={(event) => setResumeDraft(event.target.value)}
+                    maxLength={DOCUMENT_CONTENT_MAX}
                     className="min-h-[62vh] w-full rounded-lg border border-input bg-background p-4 font-serif text-sm leading-relaxed text-foreground"
                   />
                   <div className="mt-3 flex justify-end gap-2">
@@ -321,6 +324,7 @@ export function GeneratorPage({ applicationId }: Readonly<GeneratorPageProps>) {
                   <textarea
                     value={coverLetterContent}
                     onChange={(event) => setCoverLetterDraft(event.target.value)}
+                    maxLength={COVER_LETTER_MAX}
                     className="min-h-[62vh] w-full rounded-lg border border-input bg-background p-4 font-serif text-sm leading-[1.8] text-foreground"
                   />
                   <div className="mt-3 flex justify-end gap-2">
