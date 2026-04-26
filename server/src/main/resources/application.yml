@@ -35,6 +35,9 @@ spring:
     baseline-version: 0
     locations: classpath:db/migration
     validate-on-migrate: true
+  threads:
+    virtual:
+      enabled: true
 
 management:
   endpoints:
@@ -71,6 +74,14 @@ ai:
   provider: gemini
   model: ${GEMINI_AI_MODEL}
   api-key: ${GEMINI_API_KEY}
+
+adzuna:
+  enabled: ${ADZUNA_ENABLED:false}
+  app-id: ${ADZUNA_APP_ID:}
+  api-key: ${ADZUNA_API_KEY:}
+  # ISO country code in the Adzuna URL path. Options: gb, fr, de, us, au, ca, nl, pl, ru, za, br, in, nz, sg.
+  country: ${ADZUNA_COUNTRY:gb}
+  results-per-page: 20
 
 storage:
   provider: s3

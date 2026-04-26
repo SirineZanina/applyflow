@@ -50,7 +50,7 @@ public class AutomationServiceImpl implements AutomationService {
                 .map(jobId -> {
                     final JobListing job = jobListingRepository.findByIdAndActiveTrue(jobId).orElseThrow();
                     final var preparedApp = applicationService.prepareForListing(jobId, userId);
-                    applicationService.generateDocuments(preparedApp.applicationId(), userId);
+                    applicationService.generateDocuments(preparedApp.applicationId(), userId, "FORMAL");
                     final var entity = applicationRepository.findByIdAndUserId(preparedApp.applicationId(), userId).orElseThrow();
                     entity.setAiPrepared(true);
                     entity.setNextStep("Review before submit");

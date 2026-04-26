@@ -10,7 +10,9 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -39,13 +41,13 @@ public class CandidateProfile extends BaseEntity {
     @CollectionTable(name= "profile_desired_roles",
     joinColumns = @JoinColumn(name= "profile_id"))
     @Column(name= "role")
-    private List<String> desiredRoles = new ArrayList<>();
+    private Set<String> desiredRoles = new LinkedHashSet<>();
 
     @ElementCollection
     @CollectionTable(name= "profile_desired_locations",
             joinColumns = @JoinColumn(name= "profile_id"))
     @Column(name = "location")
-    private List<String> desiredLocations = new ArrayList<>();
+    private Set<String> desiredLocations = new LinkedHashSet<>();
 
     @ElementCollection
     @CollectionTable(name = "profile_skills",
