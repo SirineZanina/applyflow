@@ -25,7 +25,7 @@ public interface JobApplicationService {
 
     PrepareJobApplicationResponse prepareForListing(String listingId, String userId);
 
-    GenerateDocumentsResponse generateDocuments(String applicationId, String userId);
+    GenerateDocumentsResponse generateDocuments(String applicationId, String userId, String tone);
 
     void delete(String id, String userId);
 

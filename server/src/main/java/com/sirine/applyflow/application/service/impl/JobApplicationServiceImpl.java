@@ -10,6 +10,8 @@ import com.sirine.applyflow.application.request.UpdateJobApplicationRequest;
 import com.sirine.applyflow.application.response.GenerateDocumentsResponse;
 import com.sirine.applyflow.application.response.JobApplicationResponse;
 import com.sirine.applyflow.application.response.PrepareJobApplicationResponse;
+import com.sirine.applyflow.ai.AiDocumentGenerator;
+import com.sirine.applyflow.ai.AiDocumentOutput;
 import com.sirine.applyflow.application.service.JobApplicationService;
 import com.sirine.applyflow.document.DocumentType;
 import com.sirine.applyflow.document.GeneratedDocument;
@@ -54,6 +56,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
     private final CandidateProfileRepository profileRepository;
     private final GeneratedDocumentRepository generatedDocumentRepository;
     private final ObjectMapper objectMapper;
+    private final AiDocumentGenerator aiDocumentGenerator;
 
     @Override
     @Transactional(readOnly = true)
@@ -159,7 +162,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
     @Override
     @Transactional
-    public GenerateDocumentsResponse generateDocuments(final String applicationId, final String userId) {
+    public GenerateDocumentsResponse generateDocuments(final String applicationId, final String userId, final String tone) {
         final JobApplication application = findOwnedApplication(applicationId, userId);
         final JobListing listing = application.getJobListing();
         final CandidateProfile profile = profileRepository.findByUser_Id(userId).orElse(null);
@@ -168,8 +171,17 @@ public class JobApplicationServiceImpl implements JobApplicationService {
                 : resumeRepository.findByUser_IdAndPrimaryTrue(userId).orElse(null);
 
         final List<String> suggestions = buildSuggestions(application, listing, profile, resume);
-        final String tailoredResumeContent = buildTailoredResume(application, listing, profile, resume, suggestions);
-        final String coverLetterContent = buildCoverLetter(application, listing, profile, suggestions);
+
+        // Try AI generation; fall back to template if it fails.
+        final AiDocumentOutput aiResume = aiDocumentGenerator.generateResume(profile, resume, listing, tone);
+        final AiDocumentOutput aiCoverLetter = aiDocumentGenerator.generateCoverLetter(profile, resume, listing, tone);
+
+        final String tailoredResumeContent = (aiResume != null && aiResume.markdown() != null)
+                ? aiResume.markdown()
+                : buildTailoredResume(application, listing, profile, resume, suggestions);
+        final String coverLetterContent = (aiCoverLetter != null && aiCoverLetter.markdown() != null)
+                ? aiCoverLetter.markdown()
+                : buildCoverLetter(application, listing, profile, suggestions);
 
         final GeneratedDocument tailoredResume = saveGeneratedDocument(
                 userId,

@@ -2,6 +2,7 @@ package com.sirine.applyflow.application.controller;
 
 import com.sirine.applyflow.application.ApplicationStatus;
 import com.sirine.applyflow.application.request.CreateJobApplicationRequest;
+import com.sirine.applyflow.application.request.GenerateDocumentsRequest;
 import com.sirine.applyflow.application.request.UpdateJobApplicationRequest;
 import com.sirine.applyflow.application.response.GenerateDocumentsResponse;
 import com.sirine.applyflow.application.response.JobApplicationResponse;
@@ -73,8 +74,10 @@ public class JobApplicationController {
     @PostMapping("/{id}/generate-documents")
     public ResponseEntity<GenerateDocumentsResponse> generateDocuments(
             @PathVariable final String id,
+            @Valid @RequestBody(required = false) final GenerateDocumentsRequest request,
             final Authentication principal) {
-        return ResponseEntity.ok(applicationService.generateDocuments(id, SecurityUtils.extractUserId(principal)));
+        final String tone = request != null ? request.tone() : "FORMAL";
+        return ResponseEntity.ok(applicationService.generateDocuments(id, SecurityUtils.extractUserId(principal), tone));
     }
 
     @DeleteMapping("/{id}")
