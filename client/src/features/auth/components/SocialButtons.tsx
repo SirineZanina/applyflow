@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 
 function GoogleIcon() {
@@ -32,15 +33,15 @@ const btnClass = [
 
 export function SocialButtons() {
   return (
-    <div className="flex gap-2.5">
-      <button type="button" className={btnClass} onClick={handleClick}>
+    <div className="grid w-full grid-cols-2 gap-3">
+      <Button variant="ghost" className={btnClass} onClick={handleClick}>
         <GoogleIcon />
         Google
-      </button>
-      <button type="button" className={btnClass} onClick={handleClick}>
+      </Button>
+      <Button variant="ghost" className={btnClass} onClick={handleClick}>
         <LinkedInIcon />
         LinkedIn
-      </button>
+      </Button>
     </div>
   )
 }

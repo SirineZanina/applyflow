@@ -1,12 +1,5 @@
 import { Outlet, useRouterState } from "@tanstack/react-router";
-
-function BoltIcon({ size = 16, color = "white" }: { readonly size?: number; readonly color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round">
-      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-    </svg>
-  );
-}
+import { AppLogo } from "../icons";
 
 const FEATURES = [
   { emoji: "⚡", title: "Auto-Apply",      description: "AI applies to hundreds of jobs while you sleep" },
@@ -14,19 +7,6 @@ const FEATURES = [
   { emoji: "◎",  title: "Tailored CVs",    description: "Every application gets a personalized resume" },
   { emoji: "→",  title: "Track Everything", description: "Kanban board for your entire job search" },
 ] as const;
-
-function AppLogo({ dark = false }: { readonly dark?: boolean }) {
-  return (
-    <div className="flex items-center gap-2.25">
-      <div className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-primary">
-        <BoltIcon size={16} color="white" />
-      </div>
-      <span className={`text-[17px] font-extrabold tracking-[-0.03em] ${dark ? "text-white" : "text-foreground"}`}>
-        ApplyFlow
-      </span>
-    </div>
-  );
-}
 
 function LeftPanel() {
   return (
@@ -79,7 +59,7 @@ interface RightPanelProps {
 
 function RightPanel({  title, description }: RightPanelProps) {
   return (
-    <div className="flex flex-1 items-center justify-center overflow-y-auto p-10">
+    <div className="flex flex-1 items-center justify-center">
       <div className="w-full max-w-115">
         {/* Mobile logo */}
         <div className="mb-8 lg:hidden">
@@ -119,5 +99,3 @@ export function AuthLayout() {
     </div>
   );
 }
-
-export { AppLogo, BoltIcon };
